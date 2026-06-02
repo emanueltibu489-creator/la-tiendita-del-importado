@@ -1,0 +1,6 @@
+{
+  "name": "La Tiendita del Importado",
+  "description": "Tienda gourmet y sensorial de perfumes árabes, mates premium y tecnología de alta gama.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

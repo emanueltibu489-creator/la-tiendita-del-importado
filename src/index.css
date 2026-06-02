@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-luxury: "Cormorant Garamond", serif;
+  
+  --color-luxury-gold: #D4AF37;
+  --color-luxury-purple-50: #f5f3ff;
+  --color-luxury-purple-100: #ede9fe;
+  --color-luxury-purple-900: #1e1135;
+  --color-luxury-purple-950: #090510;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-luxury-purple-950);
+    color: #e5e7eb;
+  }
+}
+
+/* Custom luxury scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-luxury-purple-950);
+}
+::-webkit-scrollbar-thumb {
+  background: #3c2463;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-luxury-gold);
+}
+
+.glass-card {
+  background: rgba(20, 12, 34, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(183, 156, 237, 0.12);
+}
+
+.glass-premium {
+  background: rgba(110, 68, 178, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+/* Spin animation for compass */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 15s linear infinite;
+}
+
+/* Keyframe pulse slow animation */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.03); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s infinite ease-in-out;
+}

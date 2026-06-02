@@ -1,0 +1,316 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Sparkles, HelpCircle, Compass, Heart, GraduationCap, MapPin, AlertCircle } from 'lucide-react';
+
+import { PERFUMES, BAZAR, TECNO, PRODUCTS } from './data';
+import { Product, CartItem } from './types';
+
+// Modular Components
+import { Navigation } from './components/Navigation';
+import { PerfumeDetail } from './components/PerfumeDetail';
+import { BazarSection } from './components/BazarSection';
+import { TechSection } from './components/TechSection';
+import { SommelierModal } from './components/SommelierModal';
+import { CartSidebar } from './components/CartSidebar';
+import { ToastContainer, ToastMessage } from './components/Toast';
+import { BrandEmblem } from './components/BrandLogo';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('perfumeria');
+  const [activePerfume, setActivePerfume] = useState<Product>(PERFUMES[0]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<'seña' | 'total'>('seña');
+  const [giftWrapping, setGiftWrapping] = useState<boolean>(false);
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const [isSommelierOpen, setIsSommelierOpen] = useState<boolean>(false);
+  
+  // Toasts
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (text: string, type: 'success' | 'error' | 'info') => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, text, type }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Cart operations
+  const handleAddToCart = (product: Product) => {
+    setCartItems((prev) => {
+      const idx = prev.findIndex((item) => item.product.id === product.id);
+      if (idx > -1) {
+        const copy = [...prev];
+        copy[idx].quantity += 1;
+        return copy;
+      } else {
+        return [...prev, { product, quantity: 1 }];
+      }
+    });
+    addToast(`"${product.name}" añadido a tu reserva`, 'success');
+    setIsCartOpen(true);
+  };
+
+  const handleUpdateQuantity = (id: string, factor: number) => {
+    setCartItems((prev) => {
+      const idx = prev.findIndex((item) => item.product.id === id);
+      if (idx > -1) {
+        const copy = [...prev];
+        copy[idx].quantity += factor;
+        if (copy[idx].quantity <= 0) {
+          copy.splice(idx, 1);
+          addToast("Artículo eliminado de tu reserva", 'info');
+        }
+        return copy;
+      }
+      return prev;
+    });
+  };
+
+  const handleSelectPerfumeId = (id: string) => {
+    const perf = PERFUMES.find((p) => p.id === id);
+    if (perf) {
+      setActivePerfume(perf);
+    }
+  };
+
+  const totalCartCount = cartItems.reduce((acc, curr) => acc + curr.quantity, 0);
+
+  return (
+    <div className="text-gray-200 min-h-screen relative pb-20 antialiased overflow-x-hidden selection:bg-[var(--color-luxury-gold)]/30 selection:text-white">
+      {/* Dynamic Background Gradients */}
+      <div className="fixed inset-0 pointer-events-none -z-20 bg-[var(--color-luxury-purple-950)]" />
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(110,68,178,0.14)_0%,transparent_45%),radial-gradient(circle_at_90%_80%,rgba(212,175,55,0.07)_0%,transparent_48%)]" />
+
+      {/* Navigation Header */}
+      <Navigation
+        cartCount={totalCartCount}
+        onOpenCart={() => setIsCartOpen(true)}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenSommelier={() => setIsSommelierOpen(true)}
+      />
+
+      {/* Main Content Area */}
+      <main className="max-w-6xl mx-auto px-4 py-8 relative">
+        {/* Floating background ornament */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-purple-800/5 rounded-full blur-[130px] pointer-events-none -z-10 animate-pulse-slow" />
+
+        {/* INTRODUCCIÓN INSTITUCIONAL & EMBLEMA CIRCULAR */}
+        <section className="mb-14 flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-[var(--color-luxury-purple-900)]/45 via-[var(--color-luxury-purple-950)] to-transparent p-6 sm:p-10 rounded-3xl border border-purple-900/30 shadow-2xl relative overflow-hidden group">
+          
+          {/* Subtle light streak pass */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-[120%] group-hover:translate-x-[120%] transition-transform duration-1000 ease-out" />
+
+          {/* Segundo Emblema Circular */}
+          <div className="w-28 h-28 md:w-36 md:h-36 shrink-0 bg-gradient-to-tr from-[var(--color-luxury-purple-950)] to-purple-900/50 p-1.5 rounded-full shadow-2xl flex items-center justify-center border-2 border-[var(--color-luxury-gold)]/40 relative overflow-hidden group/emblem">
+            <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-y-full group-hover/emblem:translate-y-0 transition-transform duration-500 pointer-events-none" />
+            <BrandEmblem className="w-[85%] h-[85%] object-contain transition-transform duration-500 group-hover/emblem:scale-[1.06]" />
+          </div>
+
+          <div className="text-center md:text-left" id="welcome-text-container">
+            <span className="text-xs uppercase font-bold tracking-[0.34em] text-[var(--color-luxury-gold)] mb-2.5 block">
+              BIENVENIDO A LA TIENDITA DEL IMPORTADO
+            </span>
+            <h1 className="font-luxury text-2xl sm:text-3xl md:text-4xl font-semibold text-white tracking-wide mb-4 leading-tight">
+              El lugar donde los productos especiales encuentran a las personas correctas
+            </h1>
+            <p className="text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-light mb-3">
+              No creemos en vender por vender. Creemos en encontrar ese perfume que te representa, ese regalo que sorprende o ese producto que te hace decir: <span className="font-normal text-[var(--color-luxury-gold)]">"esto era exactamente lo que buscaba"</span>.
+            </p>
+            <p className="text-xs sm:text-sm font-medium tracking-wide text-purple-200">
+              Empezá a explorar nuestra colección.
+            </p>
+          </div>
+        </section>
+
+        {/* SECTION 1: PERFUMERÍA FINA Y CUADRANTE SENSORIAL */}
+        <PerfumeDetail
+          perfumes={PERFUMES}
+          activePerfume={activePerfume}
+          onSelectPerfume={handleSelectPerfumeId}
+          onAddToCart={handleAddToCart}
+        />
+
+        {/* SECTION 2: BAZAR & MATES PREMIUM */}
+        <BazarSection
+          products={BAZAR}
+          onAddToCart={handleAddToCart}
+        />
+
+        {/* SECTION 3: HARDWARE Y TECNOLOGÍA SELECCIONADA */}
+        <TechSection
+          products={TECNO}
+          onAddToCart={handleAddToCart}
+        />
+
+        {/* SECTION 4: GUÍA OLFATIVA Y SOMMELIER INTEGRADO */}
+        <section id="guia" className="mt-20 border border-[var(--color-luxury-gold)]/25 bg-[radial-gradient(ellipse_at_bottom_left,rgba(110,68,178,0.12),transparent_40%)] p-8 rounded-2xl relative overflow-hidden scroll-mt-24 shadow-2xl">
+          <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            {/* Consejos Técnicos de Educación - 9 Columnas */}
+            <div className="lg:col-span-8 space-y-6">
+              <div>
+                <span className="text-xs font-bold text-[var(--color-luxury-gold)] uppercase tracking-[0.25em] mb-2 block">
+                  Guía Práctica de Uso
+                </span>
+                <h3 className="font-luxury text-2xl sm:text-3xl font-bold text-white mb-4">
+                  Cómo usar y conservar tus perfumes orientales
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2.5 bg-black/25 p-4 rounded-xl border border-purple-950/40 hover:bg-black/35 transition-colors">
+                  <div className="text-xl">🌡️</div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">Conservación Ideal</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed font-light">
+                    Guárdalos siempre en su caja original, lejos del sol directo, la humedad constante del baño y los cambios bruscos de temperatura.
+                  </p>
+                </div>
+                <div className="space-y-2.5 bg-black/25 p-4 rounded-xl border border-purple-950/40 hover:bg-black/35 transition-colors">
+                  <div className="text-xl">🧴</div>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-white">Puntos de Pulso</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed font-light">
+                    Aplica en muñecas, detrás de las orejas y en el cuello. No frotes tus muñecas; romperías las moléculas de salida reduciendo la duración.
+                  </p>
+                </div>
+                <div className="space-y-2.5 bg-black/25 p-4 rounded-xl border border-purple-950/40 hover:bg-black/35 transition-colors">
+                  <div className="text-xl">🧬</div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">La Regla de Fijación</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed font-light">
+                    La piel hidratada retiene mejor la fragancia. Aplica una crema neutra sin aroma antes de atomizar para maximizar la duración de la estela.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tarjeta Especial de Recomiendo Sommelier - 4 Columnas */}
+            <div className="lg:col-span-4 bg-gradient-to-br from-[#1e1135] to-[#3c2463] border border-[var(--color-luxury-gold)]/40 rounded-xl p-5 flex flex-col justify-between hover:border-[var(--color-luxury-gold)] transition-all duration-300 shadow-xl group relative overflow-hidden">
+              <div className="absolute -right-10 -bottom-10 w-24 h-24 bg-[var(--color-luxury-gold)]/5 rounded-full blur-xl pointer-events-none" />
+              <div>
+                <div className="flex items-center gap-2 mb-3.5">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-800 to-indigo-800 flex items-center justify-center shadow-lg border border-[var(--color-luxury-gold)]/50 animate-pulse">
+                    <span className="text-sm">🔮</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-[var(--color-luxury-gold)] uppercase tracking-[0.15em]">
+                    Asistente Virtual
+                  </span>
+                </div>
+                <h4 className="font-luxury text-lg font-bold text-white mb-2">Sommelier de Fragancias</h4>
+                <p className="text-xs text-gray-300 leading-relaxed font-light mb-4">
+                  ¿Aún tienes dudas sobre cuál es tu fragancia ideal? Nuestro consultor digital califica tu tipo de piel, clima y ocasión en solo 3 pasos rápidos.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsSommelierOpen(true)}
+                className="w-full bg-[var(--color-luxury-gold)] hover:bg-white text-purple-950 font-bold text-[10px] tracking-widest uppercase py-3 px-4 rounded-lg transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Iniciar Diagnóstico
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* INTERFAZ FLOTANTE: SOMMELIER DE FRAGANCIAS - BOTTOM RIGHT */}
+      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 group">
+        {/* Fast intuitive label always visible */}
+        <div 
+          onClick={() => setIsSommelierOpen(true)}
+          className="bg-black/85 hover:bg-black border border-[var(--color-luxury-gold)]/45 text-[var(--color-luxury-gold)] text-[10px] font-bold tracking-widest uppercase py-2.5 px-4 rounded-full shadow-2xl backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:scale-105 active:scale-95 flex items-center gap-2 border-l-2 border-l-[var(--color-luxury-gold)]"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Sommelier Virtual</span>
+        </div>
+
+        {/* Hover Tooltip description box */}
+        <div className="absolute bottom-20 right-0 w-80 rounded-2xl glass-card border border-[var(--color-luxury-gold)]/40 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 origin-bottom-right overflow-hidden" id="tooltip-bubble-flotante">
+          {/* Sommelier Banner Image inside explanation card */}
+          <div className="h-28 w-full overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#140C22] to-transparent z-10" />
+            <img 
+              src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=320&h=140" 
+              alt="Mística de Perfumería" 
+              className="w-full h-full object-cover filter brightness-[0.8]"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute bottom-2 left-4 z-20">
+              <span className="text-[9px] font-bold text-[var(--color-luxury-gold)] uppercase tracking-[0.2em]">Asesoramiento Experto</span>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-white mt-0.5">
+                Alquimia Árabe de Lujo
+              </h4>
+            </div>
+          </div>
+          
+          <div className="p-4 pt-1 bg-[#140C22]/95">
+            <p className="text-xs text-gray-300 leading-relaxed font-light">
+              ¿Abrumado por tantas opciones? Encuentra tu perfume ideal. Haz clic aquí, cuéntanos qué impacto deseas causar o qué emociones buscas transmitir hoy, y nuestro sistema calibrará las notas recomendadas para tu piel.
+            </p>
+          </div>
+          <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-[#140C22] border-r border-b border-purple-950 rotate-45" />
+        </div>
+
+        {/* Floating Call trigger with real reference image */}
+        <button
+          onClick={() => setIsSommelierOpen(true)}
+          className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-[0_8px_30px_rgba(110,68,178,0.6)] border-2 border-[var(--color-luxury-gold)] hover:scale-110 hover:rotate-6 transition-all duration-300 overflow-hidden bg-purple-950 shrink-0"
+          aria-label="Abrir Sommelier Virtual"
+        >
+          {/* Animated golden ring glow */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-luxury-gold)]/20 to-purple-500/20 animate-pulse" />
+          
+          {/* Reference Image for Sommelier */}
+          <img 
+            src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=150&h=150" 
+            alt="Sommelier de Fragancias" 
+            className="w-full h-full object-cover rounded-full"
+            referrerPolicy="no-referrer"
+          />
+
+          {/* Compass overlay in corner */}
+          <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-[var(--color-luxury-gold)] text-purple-950 flex items-center justify-center border border-purple-950 shadow-md">
+            <Compass className="h-3 w-3 text-purple-950 font-bold" />
+          </div>
+        </button>
+      </div>
+
+      {/* FOOTER - PIE DE PÁGINA */}
+      <footer className="w-full bg-[var(--color-luxury-purple-950)] border-t border-purple-950/80 py-8 text-center text-xs text-gray-500 font-light mt-20" id="app-footer">
+        <div className="max-w-6xl mx-auto px-4 space-y-2">
+          <p>© {new Date().getFullYear()} La Tiendita del Importado. Todos los derechos reservados.</p>
+          <p className="text-[10px] text-purple-400">Curaduría Sensorial de Lujo & Envíos Certificados</p>
+        </div>
+      </footer>
+
+      {/* MODAL CORES: SOMMELIER */}
+      <AnimatePresence>
+        {isSommelierOpen && (
+          <SommelierModal
+            isOpen={isSommelierOpen}
+            onClose={() => setIsSommelierOpen(false)}
+            onSelectPerfume={handleSelectPerfumeId}
+            onAddToCart={handleAddToCart}
+            onAddToast={addToast}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* SIDEBAR CORES: CART */}
+      <CartSidebar
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        selectedPaymentType={selectedPaymentType}
+        onPaymentTypeChange={setSelectedPaymentType}
+        giftWrapping={giftWrapping}
+        onGiftWrappingChange={setGiftWrapping}
+      />
+
+      {/* SYSTEM NOTIFICATIONS CONTAINER */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+    </div>
+  );
+}
