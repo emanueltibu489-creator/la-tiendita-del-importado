@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Product } from '../types';
 import { Compass, ShieldCheck } from 'lucide-react';
+import { ProductGallery } from './ProductGallery';
 
 interface PerfumeDetailProps {
   perfumes: Product[];
@@ -8,6 +9,15 @@ interface PerfumeDetailProps {
   onSelectPerfume: (id: string) => void;
   onAddToCart: (product: Product) => void;
 }
+
+const BRAND_COLORS: Record<string, string> = {
+  yara: 'text-pink-400',
+  asad: 'text-amber-500',
+  valhalla: 'text-emerald-400',
+  khamrah: 'text-orange-400',
+  '9pm-elixir': 'text-violet-400',
+  supremacy: 'text-sky-400',
+};
 
 export function PerfumeDetail({
   perfumes,
@@ -32,6 +42,7 @@ export function PerfumeDetail({
 
         {perfumes.map((perfume) => {
           const isActive = perfume.id === activePerfume.id;
+          const brandColor = BRAND_COLORS[perfume.id] ?? 'text-purple-400';
           return (
             <button
               key={perfume.id}
@@ -45,17 +56,7 @@ export function PerfumeDetail({
             >
               <div className="flex justify-between items-start w-full">
                 <div>
-                  <span
-                    className={`text-[9px] uppercase font-bold tracking-widest block ${
-                      perfume.id === 'yara'
-                        ? 'text-pink-400'
-                        : perfume.id === 'asad'
-                        ? 'text-amber-500'
-                        : perfume.id === 'valhalla'
-                        ? 'text-emerald-400'
-                        : 'text-orange-400'
-                    }`}
-                  >
+                  <span className={`text-[9px] uppercase font-bold tracking-widest block ${brandColor}`}>
                     {perfume.brand}
                   </span>
                   <span className="font-luxury text-lg font-bold text-white block mt-0.5">
@@ -98,17 +99,27 @@ export function PerfumeDetail({
             className="flex-1 flex flex-col justify-between"
           >
             <div>
-              {/* Encabezado Dinámico */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-purple-950 pb-6 mb-6">
-                <div>
-                  <span className="text-xs font-bold text-purple-400 uppercase tracking-widest block">
-                    {activePerfume.brand}
-                  </span>
-                  <h2 className="font-luxury text-3xl sm:text-4xl font-bold text-white tracking-wide mt-1">
-                    {activePerfume.name}
-                  </h2>
+              {/* Encabezado Dinámico con imagen */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start gap-4 border-b border-purple-950 pb-6 mb-6">
+                
+                <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5 w-full sm:flex-1 min-w-0">
+                  <ProductGallery perfume={activePerfume} />
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-purple-400 uppercase tracking-widest block">
+                      {activePerfume.brand}
+                    </span>
+                    <h2 className="font-luxury text-2xl sm:text-3xl font-bold text-white tracking-wide mt-1 leading-tight">
+                      {activePerfume.name}
+                    </h2>
+                    {activePerfume.badge && (
+                      <span className="inline-block mt-1.5 text-[9px] font-bold uppercase tracking-widest text-[var(--color-luxury-gold)] bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">
+                        {activePerfume.badge}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="text-left sm:text-right bg-[var(--color-luxury-gold)]/5 sm:bg-transparent p-3.5 sm:p-0 rounded-lg w-full sm:w-auto border border-[var(--color-luxury-gold)]/10 sm:border-none">
+
+                <div className="text-left sm:text-right bg-[var(--color-luxury-gold)]/5 sm:bg-transparent p-3.5 sm:p-0 rounded-lg w-full sm:w-auto border border-[var(--color-luxury-gold)]/10 sm:border-none shrink-0">
                   <span className="text-[10px] font-semibold text-gray-400 tracking-wider uppercase block">
                     Reserva con seña del 30%
                   </span>
@@ -131,105 +142,58 @@ export function PerfumeDetail({
                 {/* Pirámide del Sommelier */}
                 <div className="space-y-4 bg-black/40 p-5 rounded-xl border border-purple-950/80 relative">
                   <div className="absolute left-0 top-4 bottom-4 w-[2.5px] bg-gradient-to-b from-[var(--color-luxury-gold)] via-purple-600 to-indigo-400"></div>
-
                   <div>
                     <div className="flex justify-between items-center">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        Salida
-                      </h4>
-                      <span className="text-[10px] text-amber-500 font-semibold bg-amber-500/15 px-1.5 py-0.5 rounded">
-                        Primeros 15 min
-                      </span>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Salida</h4>
+                      <span className="text-[10px] text-amber-500 font-semibold bg-amber-500/15 px-1.5 py-0.5 rounded">Primeros 15 min</span>
                     </div>
-                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed font-light">
-                      {activePerfume.notes?.salida}
-                    </p>
+                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed font-light">{activePerfume.notes?.salida}</p>
                   </div>
-
                   <div className="h-[1px] bg-purple-950/60"></div>
-
                   <div>
                     <div className="flex justify-between items-center">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        Corazón
-                      </h4>
-                      <span className="text-[10px] text-purple-400 font-semibold bg-purple-500/15 px-1.5 py-0.5 rounded">
-                        Dura 4-6 horas
-                      </span>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Corazón</h4>
+                      <span className="text-[10px] text-purple-400 font-semibold bg-purple-500/15 px-1.5 py-0.5 rounded">Dura 4-6 horas</span>
                     </div>
-                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed font-light">
-                      {activePerfume.notes?.corazon}
-                    </p>
+                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed font-light">{activePerfume.notes?.corazon}</p>
                   </div>
-
                   <div className="h-[1px] bg-purple-950/60"></div>
-
                   <div>
                     <div className="flex justify-between items-center">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                        Fondo
-                      </h4>
-                      <span className="text-[10px] text-[var(--color-luxury-gold)] font-semibold bg-yellow-500/15 px-1.5 py-0.5 rounded">
-                        Fijación residual
-                      </span>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Fondo</h4>
+                      <span className="text-[10px] text-[var(--color-luxury-gold)] font-semibold bg-yellow-500/15 px-1.5 py-0.5 rounded">Fijación residual</span>
                     </div>
-                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed font-light">
-                      {activePerfume.notes?.fondo}
-                    </p>
+                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed font-light">{activePerfume.notes?.fondo}</p>
                   </div>
                 </div>
 
-                {/* Métricas e idoneidades del perfume */}
+                {/* Métricas */}
                 <div className="grid grid-cols-2 gap-3.5">
                   <div className="p-4 bg-black/20 rounded-xl border border-purple-950/40 flex flex-col items-center justify-center text-center hover:bg-black/35 transition-all duration-300">
-                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">
-                      {activePerfume.metrics?.iconMomento}
-                    </span>
-                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">
-                      Momento
-                    </span>
-                    <span className="text-xs text-purple-300 mt-0.5 font-medium">
-                      {activePerfume.metrics?.momento}
-                    </span>
+                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">{activePerfume.metrics?.iconMomento}</span>
+                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">Momento</span>
+                    <span className="text-xs text-purple-300 mt-0.5 font-medium">{activePerfume.metrics?.momento}</span>
                   </div>
                   <div className="p-4 bg-black/20 rounded-xl border border-purple-950/40 flex flex-col items-center justify-center text-center hover:bg-black/35 transition-all duration-300">
-                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">
-                      {activePerfume.metrics?.iconClima}
-                    </span>
-                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">
-                      Clima ideal
-                    </span>
-                    <span className="text-xs text-purple-300 mt-0.5 font-medium">
-                      {activePerfume.metrics?.clima}
-                    </span>
+                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">{activePerfume.metrics?.iconClima}</span>
+                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">Clima ideal</span>
+                    <span className="text-xs text-purple-300 mt-0.5 font-medium">{activePerfume.metrics?.clima}</span>
                   </div>
                   <div className="p-4 bg-black/20 rounded-xl border border-purple-950/40 flex flex-col items-center justify-center text-center hover:bg-black/35 transition-all duration-300">
-                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">
-                      {activePerfume.metrics?.iconEstilo}
-                    </span>
-                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">
-                      Estilo
-                    </span>
-                    <span className="text-xs text-purple-300 mt-0.5 font-medium">
-                      {activePerfume.metrics?.estilo}
-                    </span>
+                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">{activePerfume.metrics?.iconEstilo}</span>
+                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">Estilo</span>
+                    <span className="text-xs text-purple-300 mt-0.5 font-medium">{activePerfume.metrics?.estilo}</span>
                   </div>
                   <div className="p-4 bg-black/20 rounded-xl border border-purple-950/40 flex flex-col items-center justify-center text-center hover:bg-black/35 transition-all duration-300">
-                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">
-                      {activePerfume.metrics?.iconProyeccion}
-                    </span>
-                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">
-                      Estela
-                    </span>
-                    <span className="text-xs text-[var(--color-luxury-gold)] font-bold mt-0.5">
-                      {activePerfume.metrics?.proyeccion}
-                    </span>
+                    <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(212,175,55,0.2)]">{activePerfume.metrics?.iconProyeccion}</span>
+                    <span className="text-xs font-bold text-white mt-2 uppercase tracking-wider">Estela</span>
+                    <span className="text-xs text-[var(--color-luxury-gold)] font-bold mt-0.5">{activePerfume.metrics?.proyeccion}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Acción de Reserva o de Compra */}
+            {/* Acción de Reserva */}
             <div className="mt-8 pt-5 border-t border-purple-950 flex flex-col sm:flex-row justify-between items-center gap-4">
               <p className="text-[11px] text-gray-400 text-center sm:text-left leading-relaxed max-w-md flex items-start gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -250,4 +214,4 @@ export function PerfumeDetail({
       </div>
     </section>
   );
-} 
+}

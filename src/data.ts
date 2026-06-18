@@ -108,7 +108,73 @@ export const PERFUMES: Product[] = [
       proyeccion: 'Pesada (Modo Bestia)',
       iconProyeccion: '⏳',
     }
-  }
+  },
+  {
+    id: '9pm-elixir',
+    brand: 'Afnan',
+    name: '9 PM Elixir',
+    price: 68000,
+    category: 'Perfumería',
+    description: 'Carácter: Especiado, Cuero, Amaderado.',
+    shortDesc: 'Una fragancia unisex profunda y seductora para dominar la noche.',
+    character: 'Especiado, Cuero, Amaderado',
+    imageType: '9pm-elixir',
+    image: 'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-9PMELIX-100/Gemini_Generated_Image_e5u8qfe5u8qfe5u8.png',
+    images: [
+      'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-9PMELIX-100/Gemini_Generated_Image_e5u8qfe5u8qfe5u8.png',
+      'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-9PMELIX-100/Gemini_Generated_Image_g4quv3g4quv3g4qu.png',
+      'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-9PMELIX-100/Gemini_Generated_Image_hggzp9hggzp9hggz.png',
+    ],
+    badge: 'Seña: 30%',
+    notes: {
+      salida: 'Cardamomo aromático, nuez moscada especiada y elemí resinoso brillante.',
+      corazon: 'Pimiento negro vibrante, cuero refinado y lavanda suave crepuscular.',
+      fondo: 'Vainilla profunda, pachulí terroso, ládano y rosa de roca persistente.',
+    },
+    metrics: {
+      momento: 'Pura Noche',
+      iconMomento: '🌙',
+      clima: 'Otoño / Invierno',
+      iconClima: '❄️',
+      estilo: 'Formal / Seductor',
+      iconEstilo: '🖤',
+      proyeccion: 'Pesada (Modo Bestia)',
+      iconProyeccion: '⏳',
+    }
+  },
+  {
+    id: 'supremacy',
+    brand: 'Afnan',
+    name: 'Supremacy Collector Edition',
+    price: 96000,
+    category: 'Perfumería',
+    description: 'Carácter: Fresco, Floral, Amaderado.',
+    shortDesc: 'Elegancia masculina con frescura cítrica y un fondo amaderado imponente.',
+    character: 'Fresco, Floral, Amaderado',
+    imageType: 'supremacy',
+    image: 'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-SUPREMA-100/Gemini_Generated_Image_y70ftdy70ftdy70f.png',
+    images: [
+      'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-SUPREMA-100/Gemini_Generated_Image_y70ftdy70ftdy70f.png',
+      'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-SUPREMA-100/Gemini_Generated_Image_vs0vxqvs0vxqvs0v.png',
+      'https://npszwrggqidncvqlvqvw.supabase.co/storage/v1/object/public/productos/PERF-AFN-SUPREMA-100/Gemini_Generated_Image_h9du3jh9du3jh9du.png',
+    ],
+    badge: 'Collector',
+    notes: {
+      salida: 'Piña tropical, bergamota luminosa, manzana crujiente y flores blancas.',
+      corazon: 'Flor de azahar refinada, abedul sedoso y ámbar cálido envolvente.',
+      fondo: 'Musgo de roble profundo, almizcle sedoso y ámbar gris de larga duración.',
+    },
+    metrics: {
+      momento: 'Día y Noche',
+      iconMomento: '🌟',
+      clima: 'Primavera / Verano',
+      iconClima: '🌊',
+      estilo: 'Elegante / Distinguido',
+      iconEstilo: '💎',
+      proyeccion: 'Alta (Estela Imponente)',
+      iconProyeccion: '💨',
+    }
+  },
 ];
 
 export const BAZAR: Product[] = [
@@ -165,4 +231,4 @@ export const TECNO: Product[] = [
 ];
 
 export const PRODUCTS: Product[] = [...PERFUMES, ...BAZAR, ...TECNO];
-export const WHATSAPP_CONTACT = '5493434000000'; // Target whatsapp phone number
+export const WHATSAPP_CONTACT = '5493434000000';

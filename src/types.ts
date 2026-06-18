@@ -27,6 +27,8 @@ export interface Product {
   notes?: PerfumeNotes;
   metrics?: PerfumeMetrics;
   imageType: string;
+  image?: string;
+  images?: string[];
   badge?: string;
 }
 
