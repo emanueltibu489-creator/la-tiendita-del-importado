@@ -14,6 +14,7 @@ import { SommelierModal } from './components/SommelierModal';
 import { CartSidebar } from './components/CartSidebar';
 import { ToastContainer, ToastMessage } from './components/Toast';
 import { BrandEmblem } from './components/BrandLogo';
+import WhatsAppWidget from "./components/WhatsAppWidget";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('perfumeria');
@@ -97,55 +98,64 @@ export default function App() {
         {/* Floating background ornament */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-purple-800/5 rounded-full blur-[130px] pointer-events-none -z-10 animate-pulse-slow" />
 
-        {/* INTRODUCCIÓN INSTITUCIONAL & EMBLEMA CIRCULAR */}
-        <section className="mb-14 flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-[var(--color-luxury-purple-900)]/45 via-[var(--color-luxury-purple-950)] to-transparent p-6 sm:p-10 rounded-3xl border border-purple-900/30 shadow-2xl relative overflow-hidden group">
-          
-          {/* Subtle light streak pass */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-[120%] group-hover:translate-x-[120%] transition-transform duration-1000 ease-out" />
+{/* INTRODUCCIÓN INSTITUCIONAL & EMBLEMA CIRCULAR */}
+<section className="mb-14 flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-[var(--color-luxury-purple-900)]/45 via-[var(--color-luxury-purple-950)] to-transparent p-6 sm:p-10 rounded-3xl border border-purple-900/30 shadow-2xl relative overflow-hidden group">
+  
+  {/* Subtle light streak pass */}
+  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-[120%] group-hover:translate-x-[120%] transition-transform duration-1000 ease-out" />
 
-          {/* Segundo Emblema Circular */}
-          <div className="w-28 h-28 md:w-36 md:h-36 shrink-0 bg-gradient-to-tr from-[var(--color-luxury-purple-950)] to-purple-900/50 p-1.5 rounded-full shadow-2xl flex items-center justify-center border-2 border-[var(--color-luxury-gold)]/40 relative overflow-hidden group/emblem">
-            <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-y-full group-hover/emblem:translate-y-0 transition-transform duration-500 pointer-events-none" />
-            <BrandEmblem className="w-[85%] h-[85%] object-contain transition-transform duration-500 group-hover/emblem:scale-[1.06]" />
-          </div>
+  {/* Segundo Emblema Circular */}
+  <div className="w-28 h-28 md:w-36 md:h-36 shrink-0 bg-gradient-to-tr from-[var(--color-luxury-purple-950)] to-purple-900/50 p-1.5 rounded-full shadow-2xl flex items-center justify-center border-2 border-[var(--color-luxury-gold)]/40 relative overflow-hidden group/emblem">
+    <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-y-full group-hover/emblem:translate-y-0 transition-transform duration-500 pointer-events-none" />
+    <BrandEmblem className="w-[85%] h-[85%] object-contain transition-transform duration-500 group-hover/emblem:scale-[1.06]" />
+  </div>
 
-          <div className="text-center md:text-left" id="welcome-text-container">
-            <span className="text-xs uppercase font-bold tracking-[0.34em] text-[var(--color-luxury-gold)] mb-2.5 block">
-              BIENVENIDO A LA TIENDITA DEL IMPORTADO
-            </span>
-            <h1 className="font-luxury text-2xl sm:text-3xl md:text-4xl font-semibold text-white tracking-wide mb-4 leading-tight">
-              El lugar donde los productos especiales encuentran a las personas correctas
-            </h1>
-            <p className="text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-light mb-3">
-              No creemos en vender por vender. Creemos en encontrar ese perfume que te representa, ese regalo que sorprende o ese producto que te hace decir: <span className="font-normal text-[var(--color-luxury-gold)]">"esto era exactamente lo que buscaba"</span>.
-            </p>
-            <p className="text-xs sm:text-sm font-medium tracking-wide text-purple-200">
-              Empezá a explorar nuestra colección.
-            </p>
-          </div>
-        </section>
+  <div className="text-center md:text-left" id="welcome-text-container">
+    <span className="text-xs uppercase font-bold tracking-[0.34em] text-[var(--color-luxury-gold)] mb-2.5 block">
+      SELECCIONADOS CON INTENCIÓN, TRAÍDOS PARA VOS
+    </span>
 
-        {/* SECTION 1: PERFUMERÍA FINA Y CUADRANTE SENSORIAL */}
+    <h1 className="font-luxury text-2xl sm:text-3xl md:text-4xl font-semibold text-white tracking-wide mb-4 leading-tight">
+      Perfumes, regalos y productos importados que de verdad valen la pena
+    </h1>
+
+    <p className="text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-light mb-3">
+      Acá encontrás fragancias árabes únicas, regalos que sorprenden en serio y productos elegidos para que no compres más de lo mismo.
+    </p>
+
+    <p className="text-xs sm:text-sm font-medium tracking-wide text-purple-200 mb-6">
+      ¿Por dónde querés empezar?
+    </p>
+
+    <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+      <button
+        onClick={() => {
+          const perfumesSection = document.getElementById('perfumeria');
+          perfumesSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }}
+        className="bg-[var(--color-luxury-gold)] hover:bg-white text-purple-950 font-bold text-[11px] tracking-widest uppercase py-3 px-5 rounded-xl transition-all duration-300 shadow-md hover:scale-[1.02] active:scale-[0.98]"
+      >
+        Ver perfumes
+      </button>
+
+      <button
+        onClick={() => setIsSommelierOpen(true)}
+        className="border border-[var(--color-luxury-gold)]/40 hover:border-[var(--color-luxury-gold)] bg-white/5 hover:bg-white/10 text-white font-bold text-[11px] tracking-widest uppercase py-3 px-5 rounded-xl transition-all duration-300 shadow-md hover:scale-[1.02] active:scale-[0.98]"
+      >
+        Ayudame a elegir
+      </button>
+    </div>
+  </div>
+</section>
+
+        {/* SECTION 1: PERFUMERÍA  Y CUADRANTE SENSORIAL */}
         <PerfumeDetail
           perfumes={PERFUMES}
           activePerfume={activePerfume}
           onSelectPerfume={handleSelectPerfumeId}
           onAddToCart={handleAddToCart}
         />
-
-        {/* SECTION 2: BAZAR & MATES PREMIUM */}
-        <BazarSection
-          products={BAZAR}
-          onAddToCart={handleAddToCart}
-        />
-
-        {/* SECTION 3: HARDWARE Y TECNOLOGÍA SELECCIONADA */}
-        <TechSection
-          products={TECNO}
-          onAddToCart={handleAddToCart}
-        />
-
-        {/* SECTION 4: GUÍA OLFATIVA Y SOMMELIER INTEGRADO */}
+        {/* SECTION 2: GUÍA OLFATIVA Y SOMMELIER INTEGRADO */}
         <section id="guia" className="mt-20 border border-[var(--color-luxury-gold)]/25 bg-[radial-gradient(ellipse_at_bottom_left,rgba(110,68,178,0.12),transparent_40%)] p-8 rounded-2xl relative overflow-hidden scroll-mt-24 shadow-2xl">
           <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
           
@@ -171,7 +181,7 @@ export default function App() {
                 </div>
                 <div className="space-y-2.5 bg-black/25 p-4 rounded-xl border border-purple-950/40 hover:bg-black/35 transition-colors">
                   <div className="text-xl">🧴</div>
-                  <h4 class="text-xs font-bold uppercase tracking-wider text-white">Puntos de Pulso</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">Puntos de Pulso</h4>
                   <p className="text-xs text-gray-400 leading-relaxed font-light">
                     Aplica en muñecas, detrás de las orejas y en el cuello. No frotes tus muñecas; romperías las moléculas de salida reduciendo la duración.
                   </p>
@@ -212,6 +222,19 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* SECTION 3: BAZAR & MATES PREMIUM */}
+        <BazarSection
+          products={BAZAR}
+          onAddToCart={handleAddToCart}
+        />
+
+        {/* SECTION 4: HARDWARE Y TECNOLOGÍA SELECCIONADA */}
+        <TechSection
+          products={TECNO}
+          onAddToCart={handleAddToCart}
+        />
+
       </main>
 
       {/* INTERFAZ FLOTANTE: SOMMELIER DE FRAGANCIAS - BOTTOM RIGHT */}
@@ -276,6 +299,60 @@ export default function App() {
         </button>
       </div>
 
+            {/* REGISTRO BASE DE DATOS */}
+            <section className="max-w-6xl mx-auto px-4 mt-20 mb-10">
+        <div className="rounded-3xl border border-[var(--color-luxury-gold)]/20 bg-gradient-to-br from-[var(--color-luxury-purple-900)]/40 via-black/30 to-[var(--color-luxury-purple-950)]/70 p-6 sm:p-8 md:p-10 shadow-2xl">
+          <div className="max-w-2xl">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.28em] font-bold text-[var(--color-luxury-gold)] block mb-3">
+              Acceso preferencial
+            </span>
+
+            <h3 className="font-luxury text-2xl sm:text-3xl text-white font-semibold mb-3 leading-tight">
+              Recibí novedades, reposiciones y beneficios exclusivos
+            </h3>
+
+            <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-6 max-w-xl">
+              Dejanos tus datos y enterate antes que el resto cuando ingresen nuevas fragancias,
+              reposiciones o promos especiales.
+            </p>
+
+            <form className="grid grid-cols-1 gap-4 max-w-xl">
+              <input
+                type="text"
+                placeholder="Tu nombre"
+                className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none focus:border-[var(--color-luxury-gold)]"
+              />
+
+              <input
+                type="email"
+                placeholder="Tu correo electrónico"
+                className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none focus:border-[var(--color-luxury-gold)]"
+              />
+
+              <input
+                type="tel"
+                placeholder="Tu WhatsApp (opcional)"
+                className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none focus:border-[var(--color-luxury-gold)]"
+              />
+
+              <label className="flex items-start gap-3 text-xs text-gray-400 leading-relaxed">
+                <input type="checkbox" className="mt-1 accent-[var(--color-luxury-gold)]" />
+                <span>
+                  Acepto recibir novedades, reposiciones y comunicaciones comerciales por correo
+                  electrónico o WhatsApp. Puedo darme de baja cuando quiera.
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                className="w-full sm:w-fit bg-[var(--color-luxury-gold)] hover:bg-white text-purple-950 font-bold text-[11px] tracking-widest uppercase py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Quiero enterarme primero
+              </button>
+            </form>
+          </div>
+        </div>
+
       {/* FOOTER - PIE DE PÁGINA */}
       <footer className="w-full bg-[var(--color-luxury-purple-950)] border-t border-purple-950/80 py-8 text-center text-xs text-gray-500 font-light mt-20" id="app-footer">
         <div className="max-w-6xl mx-auto px-4 space-y-2">
@@ -283,6 +360,7 @@ export default function App() {
           <p className="text-[10px] text-purple-400">Curaduría Sensorial de Lujo & Envíos Certificados</p>
         </div>
       </footer>
+      </section>
 
       {/* MODAL CORES: SOMMELIER */}
       <AnimatePresence>
@@ -311,6 +389,7 @@ export default function App() {
 
       {/* SYSTEM NOTIFICATIONS CONTAINER */}
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+      <WhatsAppWidget />
     </div>
   );
 }
