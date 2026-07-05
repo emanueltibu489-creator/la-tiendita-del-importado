@@ -3,6 +3,7 @@ import { Product } from './types';
 export const PERFUMES: Product[] = [
   {
     id: 'asad',
+    sku: 'LEGACY-PERF-ASAD',
     brand: 'Lattafa',
     name: 'Asad Elixir Premium',
     price: 75000,
@@ -30,6 +31,7 @@ export const PERFUMES: Product[] = [
   },
   {
     id: 'yara',
+    sku: 'LEGACY-PERF-YARA',
     brand: 'Lattafa',
     name: 'Yara Eau de Parfum',
     price: 68000,
@@ -57,6 +59,7 @@ export const PERFUMES: Product[] = [
   },
   {
     id: 'valhalla',
+    sku: 'LEGACY-PERF-VALHALLA',
     brand: 'Rayhaan',
     name: 'Valhalla Imperium',
     price: 82000,
@@ -84,6 +87,7 @@ export const PERFUMES: Product[] = [
   },
   {
     id: 'khamrah',
+    sku: 'LEGACY-PERF-KHAMRAH',
     brand: 'Lattafa',
     name: 'Khamrah Luxury',
     price: 89000,
@@ -111,6 +115,7 @@ export const PERFUMES: Product[] = [
   },
   {
     id: '9pm-elixir',
+    sku: 'PERF-AFN-9PMELIX-100',
     brand: 'Afnan',
     name: '9 PM Elixir',
     price: 68000,
@@ -144,6 +149,7 @@ export const PERFUMES: Product[] = [
   },
   {
     id: 'supremacy',
+    sku: 'PERF-AFN-SUPREMA-100',
     brand: 'Afnan',
     name: 'Supremacy Collector Edition',
     price: 96000,
@@ -180,6 +186,7 @@ export const PERFUMES: Product[] = [
 export const BAZAR: Product[] = [
   {
     id: 'termo',
+    sku: 'BAZ-TERMO',
     name: 'Termo Black Legendary 1.2L',
     price: 95000,
     category: 'Bazar',
@@ -189,6 +196,7 @@ export const BAZAR: Product[] = [
   },
   {
     id: 'mate',
+    sku: 'BAZ-MATE',
     name: 'Mate Imperial de Caldén',
     price: 45000,
     category: 'Bazar',
@@ -198,6 +206,7 @@ export const BAZAR: Product[] = [
   },
   {
     id: 'tetera',
+    sku: 'BAZ-TETERA',
     name: 'Tetera de Vidrio Borosilicato',
     price: 38000,
     category: 'Bazar',
@@ -210,6 +219,7 @@ export const BAZAR: Product[] = [
 export const TECNO: Product[] = [
   {
     id: 'watch',
+    sku: 'TEC-WATCH',
     brand: 'Amazfit',
     name: 'Amazfit Active Luxury',
     price: 165000,
@@ -220,6 +230,7 @@ export const TECNO: Product[] = [
   },
   {
     id: 'speaker',
+    sku: 'TEC-SPEAKER',
     brand: 'Aura',
     name: 'Parlante Bluetooth Aura 6',
     price: 115000,
@@ -231,4 +242,3 @@ export const TECNO: Product[] = [
 ];
 
 export const PRODUCTS: Product[] = [...PERFUMES, ...BAZAR, ...TECNO];
-export const WHATSAPP_CONTACT = '5493434000000';

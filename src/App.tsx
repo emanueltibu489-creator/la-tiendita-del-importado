@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, HelpCircle, Compass, Heart, GraduationCap, MapPin, AlertCircle } from 'lucide-react';
 
-import { PERFUMES, BAZAR, TECNO, PRODUCTS } from './data';
+import { BAZAR, TECNO } from './data';
 import { Product, CartItem } from './types';
-
+import { getAvailablePerfumes } from './services/products';
 // Modular Components
 import { Navigation } from './components/Navigation';
 import { PerfumeDetail } from './components/PerfumeDetail';
@@ -15,13 +15,13 @@ import { CartSidebar } from './components/CartSidebar';
 import { ToastContainer, ToastMessage } from './components/Toast';
 import { BrandEmblem } from './components/BrandLogo';
 import WhatsAppWidget from "./components/WhatsAppWidget";
-
 export default function App() {
   const [activeTab, setActiveTab] = useState('perfumeria');
-  const [activePerfume, setActivePerfume] = useState<Product>(PERFUMES[0]);
+  const [perfumes, setPerfumes] = useState<Product[]>([]);
+  const [activePerfume, setActivePerfume] = useState<Product | null>(null);
+  const [isLoadingPerfumes, setIsLoadingPerfumes] = useState(true);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedPaymentType, setSelectedPaymentType] = useState<'seña' | 'total'>('seña');
-  const [giftWrapping, setGiftWrapping] = useState<boolean>(false);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isSommelierOpen, setIsSommelierOpen] = useState<boolean>(false);
   
@@ -39,11 +39,28 @@ export default function App() {
 
   // Cart operations
   const handleAddToCart = (product: Product) => {
+    const existingItem = cartItems.find((item) => item.product.sku === product.sku);
+    const hasStockLimit = typeof product.stock === 'number';
+
+    if (hasStockLimit && product.stock <= 0) {
+      addToast(`"${product.name}" no tiene stock disponible`, 'error');
+      return;
+    }
+
+    if (existingItem && hasStockLimit && existingItem.quantity >= product.stock) {
+      addToast(`Stock máximo disponible: ${product.stock}`, 'info');
+      setIsCartOpen(true);
+      return;
+    }
+
     setCartItems((prev) => {
-      const idx = prev.findIndex((item) => item.product.id === product.id);
+      const idx = prev.findIndex((item) => item.product.sku === product.sku);
       if (idx > -1) {
         const copy = [...prev];
-        copy[idx].quantity += 1;
+        const nextQuantity = copy[idx].quantity + 1;
+        copy[idx].quantity = hasStockLimit
+          ? Math.min(nextQuantity, product.stock)
+          : nextQuantity;
         return copy;
       } else {
         return [...prev, { product, quantity: 1 }];
@@ -53,12 +70,50 @@ export default function App() {
     setIsCartOpen(true);
   };
 
-  const handleUpdateQuantity = (id: string, factor: number) => {
+  const replaceCartWithProduct = (product: Product) => {
+    if (typeof product.stock === 'number' && product.stock <= 0) {
+      addToast(`"${product.name}" no tiene stock disponible`, 'error');
+      return;
+    }
+
+    setCartItems([{ product, quantity: 1 }]);
+    addToast(`"${product.name}" reservado para consultar`, 'success');
+    setIsCartOpen(true);
+  };
+
+  const handleRemoveFromCart = (sku: string) => {
+    setCartItems((prev) => prev.filter((item) => item.product.sku !== sku));
+    addToast('Producto eliminado de tu reserva', 'info');
+  };
+
+  const handleClearCart = () => {
+    setCartItems([]);
+    addToast('Reserva vaciada', 'info');
+  };
+
+  const handleUpdateQuantity = (sku: string, factor: number) => {
+    const currentItem = cartItems.find((item) => item.product.sku === sku);
+
+    if (
+      currentItem &&
+      factor > 0 &&
+      typeof currentItem.product.stock === 'number' &&
+      currentItem.quantity >= currentItem.product.stock
+    ) {
+      addToast(`Stock máximo disponible: ${currentItem.product.stock}`, 'info');
+      return;
+    }
+
     setCartItems((prev) => {
-      const idx = prev.findIndex((item) => item.product.id === id);
+      const idx = prev.findIndex((item) => item.product.sku === sku);
       if (idx > -1) {
         const copy = [...prev];
-        copy[idx].quantity += factor;
+        const stock = copy[idx].product.stock;
+        const nextQuantity = copy[idx].quantity + factor;
+        copy[idx].quantity =
+          factor > 0 && typeof stock === 'number'
+            ? Math.min(nextQuantity, stock)
+            : nextQuantity;
         if (copy[idx].quantity <= 0) {
           copy.splice(idx, 1);
           addToast("Artículo eliminado de tu reserva", 'info');
@@ -69,12 +124,38 @@ export default function App() {
     });
   };
 
-  const handleSelectPerfumeId = (id: string) => {
-    const perf = PERFUMES.find((p) => p.id === id);
+  const handleSelectPerfumeId = (sku: string) => {
+    const perf = perfumes.find((p) => p.sku === sku);
     if (perf) {
       setActivePerfume(perf);
     }
-  };
+    };
+    useEffect(() => {
+      const loadPerfumes = async () => {
+        setIsLoadingPerfumes(true);
+        try {
+          const availablePerfumes = await getAvailablePerfumes();
+          const perfumesWithImages = availablePerfumes.filter((product) => product.image);
+
+          setPerfumes(perfumesWithImages);
+
+          if (perfumesWithImages.length > 0) {
+            setActivePerfume(perfumesWithImages[0]);
+          } else {
+            setActivePerfume(null);
+          }
+        } catch (error) {
+          console.error('Error cargando perfumes:', error);
+          addToast('No se pudieron cargar los perfumes', 'error');
+          setPerfumes([]);
+          setActivePerfume(null);
+        } finally {
+          setIsLoadingPerfumes(false);
+        }
+      };
+    
+      loadPerfumes();
+    }, []);
 
   const totalCartCount = cartItems.reduce((acc, curr) => acc + curr.quantity, 0);
 
@@ -149,12 +230,23 @@ export default function App() {
 </section>
 
         {/* SECTION 1: PERFUMERÍA  Y CUADRANTE SENSORIAL */}
-        <PerfumeDetail
-          perfumes={PERFUMES}
-          activePerfume={activePerfume}
-          onSelectPerfume={handleSelectPerfumeId}
-          onAddToCart={handleAddToCart}
-        />
+  {isLoadingPerfumes ? (
+    <div className="text-center py-16 text-gray-400">
+      Cargando perfumes...
+    </div>
+  ) : activePerfume ? (
+    <PerfumeDetail
+      perfumes={perfumes}
+      activePerfume={activePerfume}
+      onSelectPerfume={handleSelectPerfumeId}
+      onAddToCart={handleAddToCart}
+    />
+  ) : (
+    <div className="text-center py-16 text-gray-400">
+      No hay perfumes disponibles en este momento.
+    </div>
+  )}
+
         {/* SECTION 2: GUÍA OLFATIVA Y SOMMELIER INTEGRADO */}
         <section id="guia" className="mt-20 border border-[var(--color-luxury-gold)]/25 bg-[radial-gradient(ellipse_at_bottom_left,rgba(110,68,178,0.12),transparent_40%)] p-8 rounded-2xl relative overflow-hidden scroll-mt-24 shadow-2xl">
           <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -368,8 +460,9 @@ export default function App() {
           <SommelierModal
             isOpen={isSommelierOpen}
             onClose={() => setIsSommelierOpen(false)}
+            perfumes={perfumes}
             onSelectPerfume={handleSelectPerfumeId}
-            onAddToCart={handleAddToCart}
+            onReplaceCartWithProduct={replaceCartWithProduct}
             onAddToast={addToast}
           />
         )}
@@ -381,10 +474,10 @@ export default function App() {
         onClose={() => setIsCartOpen(false)}
         cartItems={cartItems}
         onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveFromCart}
+        onClearCart={handleClearCart}
         selectedPaymentType={selectedPaymentType}
         onPaymentTypeChange={setSelectedPaymentType}
-        giftWrapping={giftWrapping}
-        onGiftWrappingChange={setGiftWrapping}
       />
 
       {/* SYSTEM NOTIFICATIONS CONTAINER */}

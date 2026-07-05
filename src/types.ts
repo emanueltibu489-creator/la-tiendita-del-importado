@@ -17,12 +17,20 @@ export interface PerfumeMetrics {
 
 export interface Product {
   id: string;
+  sku: string;
   brand?: string;
   name: string;
   price: number;
+  stock?: number;
   category: 'Perfumería' | 'Bazar' | 'Tecno';
   description: string;
   shortDesc?: string;
+  descripcion_corta?: string;
+  perfil_olfativo?: string;
+  genero?: string;
+  momento_ideal?: string;
+  estacion_ideal?: string;
+  proyeccion?: string;
   character?: string;
   notes?: PerfumeNotes;
   metrics?: PerfumeMetrics;

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-const PHONE = "5493435049794";
+import { WHATSAPP_NUMBER } from "../config/business";
 
 const options = [
   {
@@ -53,7 +52,7 @@ export default function WhatsAppWidget() {
           {options.map((o) => (
             <a
               key={o.label}
-              href={`https://wa.me/${PHONE}?text=${encodeURIComponent(o.msg)}`}
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(o.msg)}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{

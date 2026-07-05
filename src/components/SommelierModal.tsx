@@ -1,64 +1,176 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Brain, Check, X, ArrowRight, ArrowLeft, Send, Compass } from 'lucide-react';
+import { Sparkles, Brain, Check, X, ArrowRight, ArrowLeft, Send, Compass, AlertCircle } from 'lucide-react';
 import { Product } from '../types';
-import { PERFUMES } from '../data';
 
 interface SommelierModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectPerfume: (id: string) => void;
-  onAddToCart: (product: Product) => void;
+  perfumes: Product[];
+  onSelectPerfume: (sku: string) => void;
+  onReplaceCartWithProduct: (product: Product) => void;
   onAddToast: (text: string, type: 'success' | 'error' | 'info') => void;
+}
+
+const PREFERENCE_KEYWORDS: Record<string, string[]> = {
+  intenso: ['intenso', 'especiado', 'amaderado', 'cuero', 'oriental', 'ambar', 'calido', 'oud', 'denso'],
+  dulce: ['dulce', 'gourmand', 'cremoso', 'atalcado', 'vainilla', 'caramelo', 'praline'],
+  fresco: ['fresco', 'citrico', 'acuatico', 'verde', 'frutal', 'energizante'],
+  noche: ['noche', 'nocturno', 'evento', 'formal', 'cita', 'otono', 'invierno'],
+  dia: ['dia', 'diario', 'casual', 'primavera', 'verano', 'templado'],
+  alta: ['alta', 'intensa', 'pesada', 'bestia', 'fuerte'],
+  moderada: ['moderada', 'suave', 'sutil', 'elegante'],
+};
+
+function normalizeText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function getSearchableProductText(product: Product): string {
+  return normalizeText([
+    product.description,
+    product.shortDesc,
+    product.descripcion_corta,
+    product.perfil_olfativo,
+    product.momento_ideal,
+    product.estacion_ideal,
+    product.proyeccion,
+    product.character,
+    product.notes?.salida,
+    product.notes?.corazon,
+    product.notes?.fondo,
+    product.metrics?.momento,
+    product.metrics?.clima,
+    product.metrics?.estilo,
+    product.metrics?.proyeccion,
+  ].filter(Boolean).join(' '));
+}
+
+type GenderPreference = 'masculino' | 'femenino' | 'unisex' | 'indiferente';
+
+interface RecommendationResult {
+  product: Product | null;
+  alternatives: Product[];
+  usedGenderFallback: boolean;
+}
+
+function normalizeProductGender(value?: string): Exclude<GenderPreference, 'indiferente'> | null {
+  const normalized = normalizeText(value || '');
+
+  if (normalized.includes('unisex')) return 'unisex';
+  if (normalized.includes('masculino') || normalized.includes('hombre')) return 'masculino';
+  if (normalized.includes('femenino') || normalized.includes('mujer')) return 'femenino';
+  return null;
+}
+
+function rankProducts(products: Product[], answerValues: string[]): Product[] {
+  return products
+    .map((product, index) => {
+      const searchableText = getSearchableProductText(product);
+      const score = answerValues.reduce((total, answer) => {
+        const keywords = PREFERENCE_KEYWORDS[answer] || [];
+        return total + keywords.filter((keyword) => searchableText.includes(keyword)).length;
+      }, 0);
+
+      return { product, score, index };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(({ product }) => product);
+}
+
+function recommendAvailablePerfume(
+  perfumes: Product[],
+  answers: Record<string, string>,
+): RecommendationResult {
+  const availablePerfumes = perfumes.filter(
+    (product) => product.sku.trim() && (product.stock ?? 0) > 0,
+  );
+
+  if (availablePerfumes.length === 0) {
+    return { product: null, alternatives: [], usedGenderFallback: false };
+  }
+
+  const genderPreference = answers.step1 as GenderPreference;
+  const exactGenderMatches = genderPreference === 'indiferente'
+    ? availablePerfumes
+    : availablePerfumes.filter(
+        (product) => normalizeProductGender(product.genero) === genderPreference,
+      );
+  const usedGenderFallback =
+    genderPreference !== 'indiferente' && exactGenderMatches.length === 0;
+  const candidates = usedGenderFallback ? availablePerfumes : exactGenderMatches;
+  const answerValues = [answers.step2, answers.step3, answers.step4].filter(Boolean);
+  const rankedCandidates = rankProducts(candidates, answerValues);
+  const bestProduct = rankedCandidates[0];
+  const alternatives = rankedCandidates
+    .filter((product) => product.sku !== bestProduct.sku)
+    .slice(0, 2);
+
+  if (alternatives.length < 2) {
+    const fallbackAlternatives = rankProducts(availablePerfumes, answerValues)
+      .filter(
+        (product) =>
+          product.sku !== bestProduct.sku &&
+          !alternatives.some((alternative) => alternative.sku === product.sku),
+      )
+      .slice(0, 2 - alternatives.length);
+    alternatives.push(...fallbackAlternatives);
+  }
+
+  return { product: bestProduct, alternatives, usedGenderFallback };
 }
 
 export function SommelierModal({
   isOpen,
   onClose,
+  perfumes,
   onSelectPerfume,
-  onAddToCart,
+  onReplaceCartWithProduct,
   onAddToast,
 }: SommelierModalProps) {
   const [activeTab, setActiveTab] = useState<'express' | 'ai'>('express');
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [recommended, setRecommended] = useState<Product | null>(null);
+  const [alternatives, setAlternatives] = useState<Product[]>([]);
+  const [recommendationNote, setRecommendationNote] = useState('');
 
   // Chat AI State
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const hasAvailablePerfumes = perfumes.some(
+    (product) => product.sku.trim() && (product.stock ?? 0) > 0,
+  );
 
   // Reset express test
   const resetExpressTest = () => {
     setStep(1);
     setAnswers({});
     setRecommended(null);
+    setAlternatives([]);
+    setRecommendationNote('');
   };
 
   const handleStepSelect = (stepNum: number, value: string) => {
     const updated = { ...answers, [`step${stepNum}`]: value };
     setAnswers(updated);
 
-    if (stepNum < 3) {
+    if (stepNum < 4) {
       setStep(stepNum + 1);
     } else {
-      // Process recommendation heuristically
-      const p1 = updated.step1; // intenso, dulce, fresco
-      const p2 = updated.step2; // noche, dia
-      
-      let recommendedId = 'asad';
-      if (p1 === 'intenso') {
-        recommendedId = p2 === 'noche' ? 'asad' : 'khamrah';
-      } else if (p1 === 'dulce') {
-        recommendedId = p2 === 'noche' ? 'khamrah' : 'yara';
-      } else if (p1 === 'fresco') {
-        recommendedId = 'valhalla';
-      }
-
-      const matchObj = PERFUMES.find(p => p.id === recommendedId) || PERFUMES[0];
-      setRecommended(matchObj);
-      setStep(4); // result screen
+      const result = recommendAvailablePerfume(perfumes, updated);
+      setRecommended(result.product);
+      setAlternatives(result.alternatives);
+      setRecommendationNote(
+        result.usedGenderFallback
+          ? 'No encontramos una coincidencia exacta con esa orientación entre los productos disponibles. Te mostramos la alternativa que mejor coincide con el resto de tus preferencias.'
+          : '',
+      );
+      setStep(5);
     }
   };
 
@@ -91,7 +203,7 @@ export function SommelierModal({
 
   const handleVerDetalles = () => {
     if (recommended) {
-      onSelectPerfume(recommended.id);
+      onSelectPerfume(recommended.sku);
       onClose();
       document.getElementById('perfumeria')?.scrollIntoView({ behavior: 'smooth' });
       onAddToast(`Mostrando desglose de "${recommended.name}"`, 'info');
@@ -100,9 +212,21 @@ export function SommelierModal({
 
   const handleReservarRecomendado = () => {
     if (recommended) {
-      onAddToCart(recommended);
+      onReplaceCartWithProduct(recommended);
       onClose();
     }
+  };
+
+  const handleVerAlternativa = (product: Product) => {
+    onSelectPerfume(product.sku);
+    onClose();
+    document.getElementById('perfumeria')?.scrollIntoView({ behavior: 'smooth' });
+    onAddToast(`Mostrando desglose de "${product.name}"`, 'info');
+  };
+
+  const handleVerCatalogo = () => {
+    onClose();
+    document.getElementById('perfumeria')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (!isOpen) return null;
@@ -169,7 +293,7 @@ export function SommelierModal({
         
         {/* Cuerpo del Modal con Banner de Referencia */}
         <div className="overflow-y-auto flex-1 flex flex-col" id="sommelier-modal-body-container">
-          {step !== 4 && (
+          {step !== 5 && (
             <div className="h-28 w-full relative overflow-hidden shrink-0 border-b border-purple-950/40">
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-luxury-purple-950)] via-[var(--color-luxury-purple-950)]/40 to-transparent z-10" />
               <img 
@@ -191,38 +315,42 @@ export function SommelierModal({
           
           <div className="p-6 flex-1">
             {activeTab === 'express' ? (
-              <div>
+              hasAvailablePerfumes ? (
+                <div>
                 {/* Paso 1 */}
                 {step === 1 && (
                   <div id="sommelier-step-1" className="space-y-4">
                     <div className="flex justify-between items-center text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">
-                      <span>Paso 1 de 3</span>
-                      <span className="text-[var(--color-luxury-gold)]">Preferencia aromática</span>
+                      <span>Paso 1 de 4</span>
+                      <span className="text-[var(--color-luxury-gold)]">Orientación</span>
                     </div>
                     <h4 className="text-sm font-bold text-white leading-relaxed">
-                      ¿Qué tipo de sensación olfativa buscas proyectar?
+                      ¿Qué tipo de perfume estás buscando?
                     </h4>
                     <div className="grid grid-cols-1 gap-2.5 pt-1">
                       <button
-                        onClick={() => handleStepSelect(1, 'intenso')}
-                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-between group"
+                        onClick={() => handleStepSelect(1, 'masculino')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
                       >
-                        <span>🔥 Especiado, denso, seductor y misterioso</span>
-                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        Masculino
                       </button>
                       <button
-                        onClick={() => handleStepSelect(1, 'dulce')}
-                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-between group"
+                        onClick={() => handleStepSelect(1, 'femenino')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
                       >
-                        <span>🧁 Dulce gourmand, cremoso, envolvente y atalcado</span>
-                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        Femenino
                       </button>
                       <button
-                        onClick={() => handleStepSelect(1, 'fresco')}
-                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-between group"
+                        onClick={() => handleStepSelect(1, 'unisex')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
                       >
-                        <span>🌿 Cítrico, fresco, frutal y energizante</span>
-                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        Unisex
+                      </button>
+                      <button
+                        onClick={() => handleStepSelect(1, 'indiferente')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
+                      >
+                        Me da igual / sorprendeme
                       </button>
                     </div>
                   </div>
@@ -232,24 +360,33 @@ export function SommelierModal({
                 {step === 2 && (
                   <div id="sommelier-step-2" className="space-y-4">
                     <div className="flex justify-between items-center text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">
-                      <span>Paso 2 de 3</span>
-                      <span className="text-[var(--color-luxury-gold)]">Momento y Clima</span>
+                      <span>Paso 2 de 4</span>
+                      <span className="text-[var(--color-luxury-gold)]">Preferencia aromática</span>
                     </div>
                     <h4 className="text-sm font-bold text-white leading-relaxed">
-                      ¿En qué ocasiones tienes planeado usarlo preferentemente?
+                      ¿Qué tipo de sensación olfativa buscas proyectar?
                     </h4>
                     <div className="grid grid-cols-1 gap-2.5 pt-1">
                       <button
-                        onClick={() => handleStepSelect(2, 'noche')}
-                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
+                        onClick={() => handleStepSelect(2, 'intenso')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-between group"
                       >
-                        🌃 Principalmente de noche, eventos formales o citas especiales
+                        <span>🔥 Especiado, denso, seductor y misterioso</span>
+                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                       <button
-                        onClick={() => handleStepSelect(2, 'dia')}
-                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
+                        onClick={() => handleStepSelect(2, 'dulce')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-between group"
                       >
-                        ☀️ Versátil todo el día, salidas informales y climas templados
+                        <span>🧁 Dulce gourmand, cremoso, envolvente y atalcado</span>
+                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                      <button
+                        onClick={() => handleStepSelect(2, 'fresco')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-between group"
+                      >
+                        <span>🌿 Cítrico, fresco, frutal y energizante</span>
+                        <ArrowRight className="w-4 h-4 text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     </div>
                     <button
@@ -266,24 +403,24 @@ export function SommelierModal({
                 {step === 3 && (
                   <div id="sommelier-step-3" className="space-y-4">
                     <div className="flex justify-between items-center text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">
-                      <span>Paso 3 de 3</span>
-                      <span className="text-[var(--color-luxury-gold)]">Proyección e Impacto</span>
+                      <span>Paso 3 de 4</span>
+                      <span className="text-[var(--color-luxury-gold)]">Momento y Clima</span>
                     </div>
                     <h4 className="text-sm font-bold text-white leading-relaxed">
-                      ¿Cuál es el nivel de impacto residual que buscas?
+                      ¿En qué ocasiones tienes planeado usarlo preferentemente?
                     </h4>
                     <div className="grid grid-cols-1 gap-2.5 pt-1">
                       <button
-                        onClick={() => handleStepSelect(3, 'alta')}
+                        onClick={() => handleStepSelect(3, 'noche')}
                         className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
                       >
-                        💥 Modo Bestia: Una estela inconfundible que se siente a distancia
+                        🌃 Principalmente de noche, eventos formales o citas especiales
                       </button>
                       <button
-                        onClick={() => handleStepSelect(3, 'moderada')}
+                        onClick={() => handleStepSelect(3, 'dia')}
                         className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
                       >
-                        ✨ Estela Elegante: Que se sienta al acercarse, sutil y refinado
+                        ☀️ Versátil todo el día, salidas informales y climas templados
                       </button>
                     </div>
                     <button
@@ -296,8 +433,42 @@ export function SommelierModal({
                   </div>
                 )}
 
+                {/* Paso 4 */}
+                {step === 4 && (
+                  <div id="sommelier-step-4" className="space-y-4">
+                    <div className="flex justify-between items-center text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">
+                      <span>Paso 4 de 4</span>
+                      <span className="text-[var(--color-luxury-gold)]">Proyección e Impacto</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-white leading-relaxed">
+                      ¿Cuál es el nivel de impacto residual que buscas?
+                    </h4>
+                    <div className="grid grid-cols-1 gap-2.5 pt-1">
+                      <button
+                        onClick={() => handleStepSelect(4, 'alta')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
+                      >
+                        💥 Modo Bestia: Una estela inconfundible que se siente a distancia
+                      </button>
+                      <button
+                        onClick={() => handleStepSelect(4, 'moderada')}
+                        className="w-full p-4 text-left text-xs bg-white/5 hover:bg-purple-900/35 rounded-xl border border-purple-900/40 text-gray-300 transition-all cursor-pointer active:scale-[0.99]"
+                      >
+                        ✨ Estela Elegante: Que se sienta al acercarse, sutil y refinado
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setStep(3)}
+                      className="mt-4 text-xs font-semibold text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                    >
+                      <ArrowLeft className="w-3 h-3" />
+                      Regresar
+                    </button>
+                  </div>
+                )}
+
                 {/* Paso Resultado */}
-                {step === 4 && recommended && (
+                {step === 5 && recommended && (
                   <div id="sommelier-resultado" className="space-y-4 text-center">
                     <span className="text-4xl block filter drop-shadow-md">🔮</span>
                     <span className="text-[10px] text-[var(--color-luxury-gold)] uppercase tracking-[0.2em] font-bold">
@@ -306,16 +477,24 @@ export function SommelierModal({
                     <h4 className="font-luxury text-2xl font-bold text-white mt-1">
                       Tu Fragancia Ideal es:
                     </h4>
+                    {recommendationNote && (
+                      <p className="text-xs text-gray-300 leading-relaxed">
+                        {recommendationNote}
+                      </p>
+                    )}
                     
                     {/* Tarjeta de Producto Recomendado */}
                     <div className="my-5 p-4 rounded-xl bg-purple-950/40 border border-[var(--color-luxury-gold)]/30 text-left relative overflow-hidden">
                       <div className="absolute top-2 right-2 bg-yellow-500/10 border border-yellow-500/20 text-[var(--color-luxury-gold)] text-[8px] font-bold px-2 py-0.5 rounded uppercase tracking-widest">
-                        100% Match
+                        Mejor coincidencia
                       </div>
                       <span className="text-[10px] uppercase font-bold tracking-widest text-[#B79CED]">
                         {recommended.brand}
                       </span>
-                      <h5 className="font-luxury text-xl font-bold text-white mt-0.5">
+                      <h5
+                        className="notranslate font-luxury text-xl font-bold text-white mt-0.5"
+                        translate="no"
+                      >
                         {recommended.name}
                       </h5>
                       <p className="text-xs text-gray-300 mt-2 leading-relaxed font-light">
@@ -345,8 +524,49 @@ export function SommelierModal({
                         Reservar Ahora
                       </button>
                     </div>
+
+                    {alternatives.length > 0 && (
+                      <div className="pt-4 text-left space-y-3">
+                        <h5 className="text-xs font-bold text-white">
+                          También pueden gustarte
+                        </h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {alternatives.map((product) => (
+                            <div
+                              key={product.sku}
+                              className="p-3 rounded-xl bg-purple-950/30 border border-purple-900/40"
+                            >
+                              <span className="text-[9px] uppercase font-bold tracking-wider text-[#B79CED]">
+                                {product.brand}
+                              </span>
+                              <h6
+                                className="notranslate text-sm font-semibold text-white mt-0.5"
+                                translate="no"
+                              >
+                                {product.name}
+                              </h6>
+                              <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                                {product.shortDesc || product.perfil_olfativo}
+                              </p>
+                              <button
+                                onClick={() => handleVerAlternativa(product)}
+                                className="mt-3 text-xs font-semibold text-[var(--color-luxury-gold)] hover:text-white transition-colors cursor-pointer"
+                              >
+                                Ver esta alternativa
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     
-                    <div className="pt-2">
+                    <div className="pt-2 flex flex-col items-center gap-2">
+                      <button
+                        onClick={handleVerCatalogo}
+                        className="text-xs font-semibold text-[var(--color-luxury-gold)] hover:text-white underline tracking-wider cursor-pointer"
+                      >
+                        Ver catálogo completo
+                      </button>
                       <button
                         onClick={resetExpressTest}
                         className="text-xs font-semibold text-purple-400 hover:text-white underline tracking-wider cursor-pointer font-sans"
@@ -356,7 +576,18 @@ export function SommelierModal({
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+              ) : (
+                <div className="py-8 text-center space-y-3">
+                  <AlertCircle className="w-8 h-8 text-[var(--color-luxury-gold)] mx-auto" />
+                  <h4 className="text-sm font-bold text-white">
+                    No hay perfumes disponibles en este momento
+                  </h4>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Volvé a intentarlo más tarde o consultanos por WhatsApp.
+                  </p>
+                </div>
+              )
             ) : (
               /* AI Tab: Chatbot or Consult query */
               <div className="space-y-4">

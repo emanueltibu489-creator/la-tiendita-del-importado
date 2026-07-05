@@ -23,49 +23,63 @@ export function Navigation({
   const handleNavClick = (tabId: string) => {
     onSelectTab(tabId);
     setMobileMenuOpen(false);
-    
-    // Smooth scroll to the target section
+
     const element = document.getElementById(tabId);
     if (element) {
-      const headerOffset = 110; // offset of banner + nav
+      const headerOffset = 110;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
+
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
 
   return (
     <>
-      {/* BARRA DE ANUNCIOS */}
-      <div id="shipment-alert-bar" class="w-full bg-gradient-to-r from-purple-800 via-purple-950 to-indigo-950 text-white text-[11px] sm:text-xs font-medium py-2.5 px-4 text-center tracking-wider border-b border-purple-500/20 z-50 relative">
-        <span class="inline-flex items-center gap-1.5 flex-wrap justify-center">
-          <motion.span 
+      <div
+        id="shipment-alert-bar"
+        className="w-full bg-gradient-to-r from-purple-800 via-purple-950 to-indigo-950 text-white text-[11px] sm:text-xs font-medium py-2.5 px-4 text-center tracking-wider border-b border-purple-500/20 z-50 relative"
+      >
+        <span className="inline-flex items-center gap-1.5 flex-wrap justify-center">
+          <motion.span
             animate={{ y: [0, -3, 0] }}
             transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
           >
             📍
-          </motion.span> 
-          <span>Envíos <strong>GRATIS</strong> dentro de <span class="text-[var(--color-luxury-gold)] font-bold underline decoration-wavy">Cerrito</span>.</span>
-          <span class="text-purple-300">|</span>
+          </motion.span>
+          <span>
+            Envíos <strong>GRATIS</strong> dentro de{' '}
+            <span className="text-[var(--color-luxury-gold)] font-bold underline decoration-wavy">
+              Cerrito
+            </span>
+            .
+          </span>
+          <span className="text-purple-300">|</span>
           <span>Resto del país coordinamos juntos tu despacho ideal.</span>
         </span>
       </div>
 
-      {/* CABECERA COMPATIBLE CON VENTANAS MÓVILES */}
-      <header id="app-header" className="w-full sticky top-0 z-40 glass-card border-b border-purple-950/50 transition-all duration-300 shadow-xl">
+      <header
+        id="app-header"
+        className="w-full sticky top-0 z-40 glass-card border-b border-purple-950/50 transition-all duration-300 shadow-xl"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          
-          {/* Logo Primario */}
-          <a href="#" className="flex items-center group py-1" id="logo-main-link" title="La Tiendita del Importado">
+          <a
+            href="#"
+            className="flex items-center group py-1"
+            id="logo-main-link"
+            title="La Tiendita del Importado"
+          >
             <BrandLogo className="h-10 sm:h-12 md:h-14 w-auto transition-transform duration-300 group-hover:scale-[1.03]" />
           </a>
 
-          {/* Categorías de Navegación (Escritorio) */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-widest uppercase text-gray-400" id="desktop-nav">
+          <nav
+            className="hidden md:flex items-center gap-8 text-xs font-semibold tracking-widest uppercase text-gray-400"
+            id="desktop-nav"
+          >
             <button
               onClick={() => handleNavClick('perfumeria')}
               className={`pb-1 transition-all duration-200 cursor-pointer ${
@@ -76,6 +90,7 @@ export function Navigation({
             >
               Perfumería
             </button>
+
             <button
               onClick={() => handleNavClick('bazar')}
               className={`pb-1 transition-all duration-200 cursor-pointer ${
@@ -86,6 +101,7 @@ export function Navigation({
             >
               Mates y Bazar
             </button>
+
             <button
               onClick={() => handleNavClick('tecnologia')}
               className={`pb-1 transition-all duration-200 cursor-pointer ${
@@ -96,6 +112,7 @@ export function Navigation({
             >
               Tecnología
             </button>
+
             <button
               onClick={() => handleNavClick('guia')}
               className={`pb-1 transition-all duration-200 cursor-pointer ${
@@ -108,7 +125,6 @@ export function Navigation({
             </button>
           </nav>
 
-          {/* Carrito de Compras & Triggers */}
           <div className="flex items-center gap-3">
             <button
               id="sommelier-consultation-nav"
@@ -140,19 +156,21 @@ export function Navigation({
                 )}
               </AnimatePresence>
             </button>
-            
-            {/* Botón menú móvil */}
+
             <button
               id="mobile-menu-trigger"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2.5 rounded-full md:hidden text-gray-300 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Menú Móvil Desplegable */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -168,24 +186,28 @@ export function Navigation({
               >
                 Perfumería Fina
               </button>
+
               <button
                 onClick={() => handleNavClick('bazar')}
                 className="w-full text-left block text-sm font-semibold tracking-wider text-gray-300 uppercase py-2.5 border-b border-purple-950 cursor-pointer"
               >
                 Mates y Bazar Premium
               </button>
+
               <button
                 onClick={() => handleNavClick('tecnologia')}
                 className="w-full text-left block text-sm font-semibold tracking-wider text-gray-300 uppercase py-2.5 border-b border-purple-950 cursor-pointer"
               >
                 Tecnología Seleccionada
               </button>
+
               <button
                 onClick={() => handleNavClick('guia')}
                 className="w-full text-left block text-sm font-semibold tracking-wider text-gray-300 uppercase py-2.5 border-b border-purple-950 cursor-pointer"
               >
                 Guía Olfativa
               </button>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);

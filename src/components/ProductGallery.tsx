@@ -73,17 +73,17 @@ export function ProductGallery({ perfume }: ProductGalleryProps) {
 
   return (
     <>
-      <div className="w-full sm:w-[11.5rem] md:w-[13rem] shrink-0">
+      <div className="w-full max-w-[13rem] sm:w-[11.5rem] md:w-[13rem] shrink-0 mx-auto sm:mx-0">
         <button
           type="button"
           onClick={openLightbox}
-          className="group relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-[var(--color-luxury-gold)]/30 shadow-lg bg-purple-950/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-luxury-gold)]/50"
+          className="group relative w-full aspect-[3/4] max-h-[18rem] sm:max-h-none rounded-xl overflow-hidden border border-[var(--color-luxury-gold)]/30 shadow-lg bg-purple-950/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-luxury-gold)]/50"
           aria-label={`Ver imagen ampliada de ${perfume.name}`}
         >
           <img
             src={images[selectedIndex]}
             alt={perfume.name}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out md:group-hover:scale-110"
+            className="w-full h-full object-cover object-center transition-transform duration-500 ease-out md:group-hover:scale-110"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
@@ -94,7 +94,7 @@ export function ProductGallery({ perfume }: ProductGalleryProps) {
         </button>
 
         {hasMultiple && (
-          <div className="flex gap-2 mt-2.5">
+          <div className="grid grid-cols-3 gap-2 mt-2.5 w-full max-w-full">
             {images.map((src, index) => {
               const isSelected = index === selectedIndex;
               return (
@@ -102,7 +102,7 @@ export function ProductGallery({ perfume }: ProductGalleryProps) {
                   key={`${perfume.id}-thumb-${index}`}
                   type="button"
                   onClick={() => setSelectedIndex(index)}
-                  className={`relative flex-1 aspect-square rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-luxury-gold)]/50 ${
+                  className={`relative aspect-square min-w-0 rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-luxury-gold)]/50 ${
                     isSelected
                       ? 'border-[var(--color-luxury-gold)]/70 shadow-[0_0_12px_rgba(212,175,55,0.25)] ring-1 ring-[var(--color-luxury-gold)]/30'
                       : 'border-purple-900/50 opacity-70 hover:opacity-100 hover:border-purple-500/40'
@@ -113,7 +113,7 @@ export function ProductGallery({ perfume }: ProductGalleryProps) {
                   <img
                     src={src}
                     alt=""
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center"
                     loading="lazy"
                   />
                 </button>
