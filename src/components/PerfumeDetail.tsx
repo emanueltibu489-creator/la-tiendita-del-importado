@@ -32,6 +32,41 @@ function normalizeText(value: string): string {
     .trim()
     .toLowerCase();
 }
+function getBrandKey(value: string): string {
+  return normalizeText(value || 'Sin marca') || 'sin-marca';
+}
+
+function formatBrandName(value: string): string {
+  const cleaned = value.trim();
+
+  if (!cleaned) return 'Sin marca';
+
+  return cleaned
+    .split(/\s+/)
+    .map((word) =>
+      word.length <= 3 && word === word.toUpperCase()
+        ? word
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+    )
+    .join(' ');
+}
+
+function chooseBrandName(current: string, next: string): string {
+  const currentClean = current.trim();
+  const nextClean = next.trim();
+
+  if (!currentClean) return formatBrandName(nextClean);
+  if (!nextClean) return formatBrandName(currentClean);
+
+  const currentIsLowercase = currentClean === currentClean.toLowerCase();
+  const nextIsNotLowercase = nextClean !== nextClean.toLowerCase();
+
+  if (currentIsLowercase && nextIsNotLowercase) {
+    return nextClean;
+  }
+
+  return currentClean;
+}
 
 function normalizeGender(
   value?: string,
@@ -66,9 +101,9 @@ export function PerfumeDetail({
   const [filters, setFilters] =
     useState<PerfumeFilterValues>(EMPTY_FILTERS);
 
-const [expandedBrand, setExpandedBrand] = useState<string | null>(
-  activePerfume.brand.trim() || null,
-);
+  const [expandedBrand, setExpandedBrand] = useState<string | null>(
+    getBrandKey(activePerfume.brand),
+  );
   const profiles = useMemo(
     () =>
       [
@@ -139,22 +174,34 @@ const [expandedBrand, setExpandedBrand] = useState<string | null>(
     });
   }, [filters, perfumes]);
     const perfumeGroups = useMemo(() => {
-    const groups = new Map<string, Product[]>();
+    const groups = new Map<
+      string,
+      { key: string; brand: string; perfumes: Product[] }
+    >();
 
     filteredPerfumes.forEach((perfume) => {
-      const brand = perfume.brand.trim() || 'Sin marca';
-      const brandPerfumes = groups.get(brand) ?? [];
+      const key = getBrandKey(perfume.brand);
+      const currentGroup = groups.get(key);
 
-      brandPerfumes.push(perfume);
-      groups.set(brand, brandPerfumes);
+      if (currentGroup) {
+        currentGroup.brand = chooseBrandName(
+          currentGroup.brand,
+          perfume.brand,
+        );
+        currentGroup.perfumes.push(perfume);
+        return;
+      }
+
+      groups.set(key, {
+        key,
+        brand: formatBrandName(perfume.brand),
+        perfumes: [perfume],
+      });
     });
 
-    return Array.from(groups.entries())
-      .sort(([brandA], [brandB]) => brandA.localeCompare(brandB, 'es'))
-      .map(([brand, brandPerfumes]) => ({
-        brand,
-        perfumes: brandPerfumes,
-      }));
+    return Array.from(groups.values()).sort((groupA, groupB) =>
+      groupA.brand.localeCompare(groupB.brand, 'es'),
+    );
   }, [filteredPerfumes]);
 
   useEffect(() => {
@@ -174,9 +221,9 @@ const [expandedBrand, setExpandedBrand] = useState<string | null>(
 
     if (
       expandedBrand !== null &&
-      !perfumeGroups.some((group) => group.brand === expandedBrand)
+      !perfumeGroups.some((group) => group.key === expandedBrand)
     ) {
-      setExpandedBrand(perfumeGroups[0].brand);
+      setExpandedBrand(perfumeGroups[0].key);
     }
   }, [expandedBrand, perfumeGroups]);
   const deposit = activePerfume.price * 0.3;
@@ -291,12 +338,12 @@ const [expandedBrand, setExpandedBrand] = useState<string | null>(
 
                       <div className="space-y-2">
               {perfumeGroups.map((group, groupIndex) => {
-                const isOpen = expandedBrand === group.brand;
+                const isOpen = expandedBrand === group.key;
                 const panelId = `perfume-brand-${groupIndex}`;
 
                 return (
                   <div
-                    key={group.brand}
+                    key={group.key}
                     className="overflow-hidden rounded-xl border border-purple-900/40 bg-black/20"
                   >
                     <button
@@ -304,7 +351,7 @@ const [expandedBrand, setExpandedBrand] = useState<string | null>(
                       aria-expanded={isOpen}
                       aria-controls={panelId}
                       onClick={() =>
-                        setExpandedBrand(isOpen ? null : group.brand)
+                        setExpandedBrand(isOpen ? null : group.key)
                       }
                       className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-luxury-gold)]"
                     >
@@ -312,10 +359,7 @@ const [expandedBrand, setExpandedBrand] = useState<string | null>(
                         translate="no"
                         className="notranslate min-w-0 truncate text-base font-bold text-white"
                       >
-                        {group.brand}{' '}
-                        <span className="font-semibold text-purple-300">
-                          ({group.perfumes.length})
-                        </span>
+                        {group.brand}
                       </span>
 
                       <ChevronDown
