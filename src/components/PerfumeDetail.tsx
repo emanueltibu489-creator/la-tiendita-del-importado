@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Compass, ShieldCheck } from 'lucide-react';
+import { ChevronDown, Compass, ShieldCheck } from 'lucide-react';
 
 import { Product } from '../types';
 import { ProductGallery } from './ProductGallery';
@@ -15,15 +15,6 @@ interface PerfumeDetailProps {
   onSelectPerfume: (sku: string) => void;
   onAddToCart: (product: Product) => void;
 }
-
-const BRAND_COLORS: Record<string, string> = {
-  yara: 'text-pink-400',
-  asad: 'text-amber-500',
-  valhalla: 'text-emerald-400',
-  khamrah: 'text-orange-400',
-  '9pm-elixir': 'text-violet-400',
-  supremacy: 'text-sky-400',
-};
 
 const EMPTY_FILTERS: PerfumeFilterValues = {
   query: '',
@@ -75,6 +66,9 @@ export function PerfumeDetail({
   const [filters, setFilters] =
     useState<PerfumeFilterValues>(EMPTY_FILTERS);
 
+const [expandedBrand, setExpandedBrand] = useState<string | null>(
+  activePerfume.brand.trim() || null,
+);
   const profiles = useMemo(
     () =>
       [
@@ -144,6 +138,24 @@ export function PerfumeDetail({
       );
     });
   }, [filters, perfumes]);
+    const perfumeGroups = useMemo(() => {
+    const groups = new Map<string, Product[]>();
+
+    filteredPerfumes.forEach((perfume) => {
+      const brand = perfume.brand.trim() || 'Sin marca';
+      const brandPerfumes = groups.get(brand) ?? [];
+
+      brandPerfumes.push(perfume);
+      groups.set(brand, brandPerfumes);
+    });
+
+    return Array.from(groups.entries())
+      .sort(([brandA], [brandB]) => brandA.localeCompare(brandB, 'es'))
+      .map(([brand, brandPerfumes]) => ({
+        brand,
+        perfumes: brandPerfumes,
+      }));
+  }, [filteredPerfumes]);
 
   useEffect(() => {
     const activeIsVisible = filteredPerfumes.some(
@@ -154,7 +166,19 @@ export function PerfumeDetail({
       onSelectPerfume(filteredPerfumes[0].sku);
     }
   }, [activePerfume.sku, filteredPerfumes, onSelectPerfume]);
+  useEffect(() => {
+    if (perfumeGroups.length === 0) {
+      setExpandedBrand(null);
+      return;
+    }
 
+    if (
+      expandedBrand !== null &&
+      !perfumeGroups.some((group) => group.brand === expandedBrand)
+    ) {
+      setExpandedBrand(perfumeGroups[0].brand);
+    }
+  }, [expandedBrand, perfumeGroups]);
   const deposit = activePerfume.price * 0.3;
   const salidaText = activePerfume.notes?.salida?.trim() || '';
   const estiloRaw = (
@@ -265,58 +289,91 @@ export function PerfumeDetail({
               </span>
             </div>
 
-            {filteredPerfumes.map((perfume) => {
-              const isActive =
-                perfume.sku === activePerfume.sku;
+                      <div className="space-y-2">
+              {perfumeGroups.map((group, groupIndex) => {
+                const isOpen = expandedBrand === group.brand;
+                const panelId = `perfume-brand-${groupIndex}`;
 
-              const brandColor =
-                BRAND_COLORS[perfume.id] || 'text-purple-400';
-
-              return (
-                <button
-                  key={perfume.sku}
-                  id={`btn-${perfume.sku}`}
-                  onClick={() => onSelectPerfume(perfume.sku)}
-                  className={`glass-card flex w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-xl border-l-4 p-4 text-left shadow-md transition-all duration-300 hover:-translate-y-0.5 ${
-                    isActive
-                      ? 'border-[var(--color-luxury-gold)] bg-purple-950/40'
-                      : 'border-transparent hover:border-purple-500/40'
-                  }`}
-                >
-                  <div className="flex w-full min-w-0 items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <span
-                        translate="no"
-                        className={`notranslate block truncate text-[9px] font-bold uppercase tracking-widest ${brandColor}`}
-                      >
-                        {perfume.brand}
-                      </span>
-
-                      <span
-                        translate="no"
-                        className="notranslate mt-0.5 block line-clamp-2 break-words font-luxury text-base font-bold leading-snug text-white sm:text-lg"
-                      >
-                        {perfume.name}
-                      </span>
-                    </div>
-
-                    <span
-                      className={`shrink-0 whitespace-nowrap rounded px-2 py-1 text-xs font-semibold ${
-                        isActive
-                          ? 'bg-[var(--color-luxury-gold)]/10 text-[var(--color-luxury-gold)]'
-                          : 'bg-white/5 text-gray-400'
-                      }`}
+                return (
+                  <div
+                    key={group.brand}
+                    className="overflow-hidden rounded-xl border border-purple-900/40 bg-black/20"
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
+                      onClick={() =>
+                        setExpandedBrand(isOpen ? null : group.brand)
+                      }
+                      className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-luxury-gold)]"
                     >
-                      ${perfume.price.toLocaleString('es-AR')}
-                    </span>
-                  </div>
+                      <span
+                        translate="no"
+                        className="notranslate min-w-0 truncate text-base font-bold text-white"
+                      >
+                        {group.brand}{' '}
+                        <span className="font-semibold text-purple-300">
+                          ({group.perfumes.length})
+                        </span>
+                      </span>
 
-                  <span className="mt-2 block line-clamp-2 break-words text-xs font-light text-gray-400">
-                    {perfume.description}
-                  </span>
-                </button>
-              );
-            })}
+                      <ChevronDown
+                        aria-hidden="true"
+                        className={`h-5 w-5 shrink-0 text-[var(--color-luxury-gold)] transition-transform ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+
+                    {isOpen && (
+                      <div
+                        id={panelId}
+                        className="border-t border-purple-900/40"
+                      >
+                        {group.perfumes.map((perfume) => {
+                          const isActive =
+                            perfume.sku === activePerfume.sku;
+
+                          return (
+                            <button
+                              key={perfume.sku}
+                              id={`btn-${perfume.sku}`}
+                              type="button"
+                              onClick={() => onSelectPerfume(perfume.sku)}
+                              className={`flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-luxury-gold)] ${
+                                isActive
+                                  ? 'bg-purple-950/60'
+                                  : 'bg-black/10'
+                              }`}
+                            >
+                              <span className="min-w-0">
+                                <span
+                                  translate="no"
+                                  className="notranslate block truncate text-base font-bold text-white"
+                                >
+                                  {perfume.name}
+                                </span>
+
+                                {perfume.genero && (
+                                  <span className="mt-0.5 block text-sm text-gray-400">
+                                    {perfume.genero}
+                                  </span>
+                                )}
+                              </span>
+
+                              <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
+                                ${perfume.price.toLocaleString('es-AR')}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <div
