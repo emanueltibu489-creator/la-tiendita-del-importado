@@ -105,6 +105,9 @@ export function PerfumeDetail({
   const [expandedBrand, setExpandedBrand] = useState<string | null>(
     getBrandKey(activePerfume.brand),
   );
+  const [isMobileCatalogOpen, setIsMobileCatalogOpen] = useState(false);
+  const [mobileSelectedBrandKey, setMobileSelectedBrandKey] =
+    useState<string | null>(null);
   const profiles = useMemo(
     () =>
       [
@@ -204,6 +207,10 @@ export function PerfumeDetail({
       groupA.brand.localeCompare(groupB.brand, 'es'),
     );
   }, [filteredPerfumes]);
+
+  const selectedMobileBrandGroup = perfumeGroups.find(
+    (group) => group.key === mobileSelectedBrandKey,
+  );
 
   useEffect(() => {
     const activeIsVisible = filteredPerfumes.some(
@@ -355,7 +362,126 @@ export function PerfumeDetail({
               </span>
             </div>
 
-                      <div className="space-y-2 lg:max-h-[calc(100vh-290px)] lg:overflow-y-auto">
+            <button
+              type="button"
+              aria-expanded={isMobileCatalogOpen}
+              aria-controls="perfume-brand-catalog"
+              onClick={() => {
+                if (isMobileCatalogOpen) {
+                  setMobileSelectedBrandKey(null);
+                }
+
+                setIsMobileCatalogOpen(!isMobileCatalogOpen);
+              }}
+              className="flex min-h-11 w-full items-center justify-between rounded-xl border border-purple-900/40 bg-black/25 px-4 py-3 text-left text-sm font-bold text-white lg:hidden"
+            >
+              <span>
+                {isMobileCatalogOpen
+                  ? 'Cerrar marcas y perfumes'
+                  : 'Ver marcas y perfumes'}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className={`h-5 w-5 shrink-0 text-[var(--color-luxury-gold)] transition-transform ${
+                  isMobileCatalogOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {isMobileCatalogOpen && (
+              <div id="perfume-brand-catalog" className="space-y-2 lg:hidden">
+                {selectedMobileBrandGroup ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setMobileSelectedBrandKey(null)}
+                      className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-purple-900/40 bg-black/25 px-4 py-3 text-left text-sm font-bold text-white"
+                    >
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="h-5 w-5 rotate-90 text-[var(--color-luxury-gold)]"
+                      />
+                      <span>Volver a marcas</span>
+                    </button>
+
+                    <div className="rounded-xl border border-purple-900/40 bg-black/20">
+                      <div
+                        translate="no"
+                        className="notranslate border-b border-purple-900/40 px-4 py-3 text-base font-bold text-white"
+                      >
+                        {selectedMobileBrandGroup.brand}
+                      </div>
+
+                      {selectedMobileBrandGroup.perfumes.map((perfume) => {
+                        const isActive = perfume.sku === activePerfume.sku;
+
+                        return (
+                          <button
+                            key={perfume.sku}
+                            type="button"
+                            onClick={() => {
+                              onSelectPerfume(perfume.sku);
+                              setIsMobileCatalogOpen(false);
+                              setMobileSelectedBrandKey(null);
+                            }}
+                            className={`flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0 ${
+                              isActive ? 'bg-purple-950/60' : 'bg-black/10'
+                            }`}
+                          >
+                            <span className="min-w-0">
+                              <span
+                                translate="no"
+                                className="notranslate block truncate text-base font-bold text-white"
+                              >
+                                {perfume.name}
+                              </span>
+
+                              {perfume.genero && (
+                                <span className="mt-0.5 block text-sm text-gray-400">
+                                  {perfume.genero}
+                                </span>
+                              )}
+                            </span>
+
+                            <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
+                              ${perfume.price.toLocaleString('es-AR')}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="rounded-xl border border-purple-900/40 bg-black/20">
+                    <div className="border-b border-purple-900/40 px-4 py-3 text-sm font-bold text-white">
+                      Elegí una marca
+                    </div>
+
+                    {perfumeGroups.map((group) => (
+                      <button
+                        key={group.key}
+                        type="button"
+                        onClick={() => setMobileSelectedBrandKey(group.key)}
+                        className="flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0"
+                      >
+                        <span
+                          translate="no"
+                          className="notranslate min-w-0 truncate text-base font-bold text-white"
+                        >
+                          {group.brand}
+                        </span>
+                        <ChevronDown
+                          aria-hidden="true"
+                          className="h-5 w-5 -rotate-90 text-[var(--color-luxury-gold)]"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="hidden space-y-2 lg:block lg:max-h-[calc(100vh-290px)] lg:overflow-y-auto">
               {perfumeGroups.map((group, groupIndex) => {
                 const isOpen = expandedBrand === group.key;
                 const panelId = `perfume-brand-${groupIndex}`;
@@ -395,8 +521,7 @@ export function PerfumeDetail({
                         className="border-t border-purple-900/40"
                       >
                         {group.perfumes.map((perfume) => {
-                          const isActive =
-                            perfume.sku === activePerfume.sku;
+                          const isActive = perfume.sku === activePerfume.sku;
 
                           return (
                             <button
@@ -437,7 +562,6 @@ export function PerfumeDetail({
                 );
               })}
             </div>
-
             <div className="rounded-xl border border-[var(--color-luxury-gold)]/25 bg-[var(--color-luxury-gold)]/5 p-4">
               <h4 className="text-sm font-bold text-white">
                 ¿No encontraste tu perfume?
@@ -646,3 +770,4 @@ function MetricCard({ icon, label, value }: MetricCardProps) {
     </div>
   );
 }
+
