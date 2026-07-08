@@ -288,11 +288,16 @@ export function PerfumeDetail({
     ? `En la salida se perciben ${salidaText}.`
     : '';
 
-  const perfumeShortDescription =
+  const generatedPerfumeDescription =
     `Un perfume ${estiloTexto}, ideal ${momentoTexto}. ` +
     `${proyeccionTexto} ${climaTexto} ${salidaDescripcion}`
       .replace(/\s+/g, ' ')
       .trim();
+
+  const perfumeShortDescription =
+    activePerfume.descripcion_corta?.trim() ||
+    activePerfume.description?.trim() ||
+    generatedPerfumeDescription;
 
   return (
     <section
