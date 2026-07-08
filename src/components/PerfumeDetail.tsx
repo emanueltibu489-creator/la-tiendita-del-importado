@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ChevronDown, Compass, ShieldCheck } from 'lucide-react';
 
+import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
 import { ProductGallery } from './ProductGallery';
 import {
@@ -298,6 +299,19 @@ export function PerfumeDetail({
     activePerfume.descripcion_corta?.trim() ||
     activePerfume.description?.trim() ||
     generatedPerfumeDescription;
+  const handleRequestPerfumeQuote = () => {
+    const message = [
+      'Hola, estuve viendo el catálogo de La Tiendita del Importado.',
+      'No encontré el perfume que buscaba y quisiera consultar si pueden conseguirlo por encargo.',
+      '¿Me pasan precio estimado, demora y condiciones de reserva?',
+    ].join('\n');
+
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+  };
 
   return (
     <section
@@ -327,7 +341,7 @@ export function PerfumeDetail({
         </div>
       ) : (
         <>
-          <div className="flex min-w-0 flex-col gap-3 lg:col-span-4 lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto lg:pr-2">
+          <div className="flex min-w-0 flex-col gap-3 lg:col-span-4 lg:pr-2">
             <div
               className="mb-1 flex items-center justify-between"
               id="perfume-sec-header"
@@ -341,7 +355,7 @@ export function PerfumeDetail({
               </span>
             </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2 lg:max-h-[calc(100vh-290px)] lg:overflow-y-auto">
               {perfumeGroups.map((group, groupIndex) => {
                 const isOpen = expandedBrand === group.key;
                 const panelId = `perfume-brand-${groupIndex}`;
@@ -422,6 +436,22 @@ export function PerfumeDetail({
                   </div>
                 );
               })}
+            </div>
+
+            <div className="rounded-xl border border-[var(--color-luxury-gold)]/25 bg-[var(--color-luxury-gold)]/5 p-4">
+              <h4 className="text-sm font-bold text-white">
+                ¿No encontraste tu perfume?
+              </h4>
+              <p className="mt-1.5 text-sm leading-relaxed text-gray-300">
+                Escribinos por WhatsApp y consultamos si podemos conseguirlo para vos.
+              </p>
+              <button
+                type="button"
+                onClick={handleRequestPerfumeQuote}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[var(--color-luxury-gold)] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-purple-950 transition-transform active:scale-[0.98] sm:w-auto"
+              >
+                Cotizar por WhatsApp
+              </button>
             </div>
           </div>
 
