@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Brain, Check, X, ArrowRight, ArrowLeft, Send, Compass, AlertCircle } from 'lucide-react';
 import { Product } from '../types';
+import { getEffectivePrice } from '../utils/pricing';
 
 interface SommelierModalProps {
   isOpen: boolean;
@@ -504,7 +505,7 @@ export function SommelierModal({
                       <div className="mt-3 flex justify-between items-center pt-3 border-t border-purple-900/40">
                         <span className="text-xs text-gray-400">Precio Sugerido:</span>
                         <span className="text-base font-bold text-[var(--color-luxury-gold)]">
-                          ${recommended.price.toLocaleString('es-AR')} ARS
+                          ${getEffectivePrice(recommended).toLocaleString('es-AR')} ARS
                         </span>
                       </div>
                     </div>

@@ -6,6 +6,7 @@ interface SupabaseProductRow {
   marca: string | null;
   nombre: string | null;
   precio_ars: number | string | null;
+  precio_oferta_ars: number | string | null;
   stock: number | string | null;
   categoria: string | null;
   genero: string | null;
@@ -29,6 +30,7 @@ const PRODUCT_COLUMNS = `
   marca,
   nombre,
   precio_ars,
+  precio_oferta_ars,
   stock,
   categoria,
   genero,
@@ -50,6 +52,13 @@ const PRODUCT_COLUMNS = `
 function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
   const sku = row.sku?.trim().toUpperCase();
   const stock = Number(row.stock) || 0;
+  const price = Number(row.precio_ars) || 0;
+  const offerPrice = Number(row.precio_oferta_ars) || 0;
+  const hasValidOffer =
+    Boolean(row.es_oferta_relampago) &&
+    offerPrice > 0 &&
+    offerPrice < price &&
+    stock > 0;
 
   if (!sku) {
     console.warn('Producto excluido por falta de SKU.', {
@@ -73,8 +82,11 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
     sku,
     brand: row.marca || 'Sin marca',
     name: row.nombre || 'Producto sin nombre',
-    price: Number(row.precio_ars) || 0,
+    price,
+    offerPrice: offerPrice > 0 ? offerPrice : null,
     stock,
+    isFlashOffer: Boolean(row.es_oferta_relampago),
+    isFeatured: Boolean(row.es_destacado_semana),
     category: 'Perfumería',
     description:
       row.descripcion_corta ||
@@ -111,7 +123,7 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
     images,
     badge: row.es_destacado_semana
       ? 'Destacado'
-      : row.es_oferta_relampago
+      : hasValidOffer
         ? 'Oferta'
         : undefined,
   };

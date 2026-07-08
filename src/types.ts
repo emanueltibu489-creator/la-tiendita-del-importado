@@ -21,7 +21,10 @@ export interface Product {
   brand?: string;
   name: string;
   price: number;
+  offerPrice?: number | null;
   stock?: number;
+  isFlashOffer?: boolean;
+  isFeatured?: boolean;
   category: 'Perfumería' | 'Bazar' | 'Tecno';
   description: string;
   shortDesc?: string;

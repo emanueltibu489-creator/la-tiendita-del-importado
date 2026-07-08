@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, X, Trash2, Plus, Minus } from 'lucide-react';
 import { Product, CartItem } from '../types';
+import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
 import { WHATSAPP_NUMBER } from '../config/business';
 
 interface CartSidebarProps {
@@ -26,7 +27,7 @@ export function CartSidebar({
 }: CartSidebarProps) {
   // Calculations
   const productsSubtotal = cartItems.reduce(
-    (acc, item) => acc + item.product.price * item.quantity,
+    (acc, item) => acc + getEffectivePrice(item.product) * item.quantity,
     0
   );
   const totalAmount = productsSubtotal;
@@ -47,12 +48,27 @@ export function CartSidebar({
     ];
 
     cartItems.forEach((item) => {
-      const subtotal = item.product.price * item.quantity;
+      const unitPrice = getEffectivePrice(item.product);
+      const subtotal = unitPrice * item.quantity;
+      const hasOffer = hasValidFlashOffer(item.product);
       messageLines.push(
         `▪️ *${item.product.name}*`,
         `   SKU: ${item.product.sku}`,
         `   Cantidad: ${item.quantity}`,
-        `   Precio unitario: $${item.product.price.toLocaleString('es-AR')} ARS`,
+      );
+
+      if (hasOffer) {
+        messageLines.push(
+          `   Precio habitual: $${item.product.price.toLocaleString('es-AR')} ARS`,
+          `   Precio oferta: $${unitPrice.toLocaleString('es-AR')} ARS`,
+        );
+      } else {
+        messageLines.push(
+          `   Precio unitario: $${unitPrice.toLocaleString('es-AR')} ARS`,
+        );
+      }
+
+      messageLines.push(
         `   Subtotal: $${subtotal.toLocaleString('es-AR')} ARS`,
         '',
       );
@@ -162,7 +178,8 @@ export function CartSidebar({
               </motion.div>
             ) : (
               cartItems.map((item) => {
-                const itemSubtotal = item.product.price * item.quantity;
+                const itemUnitPrice = getEffectivePrice(item.product);
+                const itemSubtotal = itemUnitPrice * item.quantity;
                 const reachedStockLimit =
                   typeof item.product.stock === 'number' &&
                   item.quantity >= item.product.stock;

@@ -4,6 +4,8 @@ import { ChevronDown, Compass, ShieldCheck } from 'lucide-react';
 
 import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
+import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
+import { FeaturedPerfumes } from './FeaturedPerfumes';
 import { ProductGallery } from './ProductGallery';
 import {
   PerfumeFilters,
@@ -160,12 +162,12 @@ export function PerfumeDetail({
       const matchesMinPrice =
         minPrice === null ||
         Number.isNaN(minPrice) ||
-        perfume.price >= minPrice;
+        getEffectivePrice(perfume) >= minPrice;
 
       const matchesMaxPrice =
         maxPrice === null ||
         Number.isNaN(maxPrice) ||
-        perfume.price <= maxPrice;
+        getEffectivePrice(perfume) <= maxPrice;
 
       return (
         matchesName &&
@@ -234,7 +236,9 @@ export function PerfumeDetail({
       setExpandedBrand(perfumeGroups[0].key);
     }
   }, [expandedBrand, perfumeGroups]);
-  const deposit = activePerfume.price * 0.3;
+  const activeHasOffer = hasValidFlashOffer(activePerfume);
+  const activeEffectivePrice = getEffectivePrice(activePerfume);
+  const deposit = activeEffectivePrice * 0.3;
   const salidaText = activePerfume.notes?.salida?.trim() || '';
   const estiloRaw = (
     activePerfume.metrics?.estilo || ''
@@ -336,6 +340,12 @@ export function PerfumeDetail({
           onClear={() => setFilters(EMPTY_FILTERS)}
         />
       </div>
+
+      <FeaturedPerfumes
+        perfumes={perfumes}
+        activeSku={activePerfume.sku}
+        onSelectPerfume={onSelectPerfume}
+      />
 
       {filteredPerfumes.length === 0 ? (
         <div className="rounded-xl border border-purple-900/40 bg-black/20 px-4 py-12 text-center lg:col-span-12">
@@ -444,7 +454,7 @@ export function PerfumeDetail({
                             </span>
 
                             <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
-                              ${perfume.price.toLocaleString('es-AR')}
+                              ${getEffectivePrice(perfume).toLocaleString('es-AR')}
                             </span>
                           </button>
                         );
@@ -551,7 +561,7 @@ export function PerfumeDetail({
                               </span>
 
                               <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
-                                ${perfume.price.toLocaleString('es-AR')}
+                                ${getEffectivePrice(perfume).toLocaleString('es-AR')}
                               </span>
                             </button>
                           );
@@ -634,8 +644,14 @@ export function PerfumeDetail({
                       </span>
 
                       <span className="block break-words text-xl font-bold tracking-wider text-[var(--color-luxury-gold)] tabular-nums sm:text-2xl lg:text-3xl">
-                        ${activePerfume.price.toLocaleString('es-AR')} ARS
+                        ${activeEffectivePrice.toLocaleString('es-AR')} ARS
                       </span>
+
+                      {activeHasOffer && (
+                        <span className="mt-0.5 block break-words text-xs font-semibold text-gray-500 line-through tabular-nums">
+                          ${activePerfume.price.toLocaleString('es-AR')} ARS
+                        </span>
+                      )}
 
                       <span className="mt-0.5 block break-words text-[10px] text-gray-400 tabular-nums">
                         Se reserva con ${deposit.toLocaleString('es-AR')} ARS
