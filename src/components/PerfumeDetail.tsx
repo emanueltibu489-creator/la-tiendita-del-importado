@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ChevronDown, Compass, ShieldCheck } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Compass, ShieldCheck } from 'lucide-react';
 
 import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
@@ -105,6 +105,7 @@ export function PerfumeDetail({
 }: PerfumeDetailProps) {
   const [filters, setFilters] =
     useState<PerfumeFilterValues>(EMPTY_FILTERS);
+  const allPerfumesScrollRef = useRef<HTMLDivElement | null>(null);
 
   const [expandedBrand, setExpandedBrand] = useState<string | null>(
     getBrandKey(activePerfume.brand),
@@ -321,6 +322,17 @@ export function PerfumeDetail({
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
   };
+
+  const scrollAllPerfumes = (direction: 'left' | 'right') => {
+    const container = allPerfumesScrollRef.current;
+
+    if (!container) return;
+
+    container.scrollBy({
+      left: direction === 'left' ? -320 : 320,
+      behavior: 'smooth',
+    });
+  };
   const handleRequestPerfumeQuote = () => {
     const message = [
       'Hola, estuve viendo el catálogo de La Tiendita del Importado.',
@@ -357,6 +369,98 @@ export function PerfumeDetail({
         activeSku={activePerfume.sku}
         onSelectPerfume={handleFeaturedPerfumeSelect}
       />
+      {filteredPerfumes.length > 0 && (
+        <div className="lg:col-span-12">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--color-luxury-gold)]">
+                Stock disponible
+              </span>
+              <h3 className="mt-1 text-lg font-bold text-white">
+                Todos los perfumes
+              </h3>
+            </div>
+            <span className="shrink-0 text-xs font-semibold text-gray-400">
+              Tocá uno para ver detalle
+            </span>
+          </div>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => scrollAllPerfumes('left')}
+              className="absolute left-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--color-luxury-gold)]/25 bg-black/45 text-[var(--color-luxury-gold)] shadow-2xl backdrop-blur-md transition hover:bg-black/60 active:scale-95"
+              aria-label="Ver perfumes anteriores"
+            >
+              <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+            </button>
+
+            <div
+              ref={allPerfumesScrollRef}
+              className="flex gap-3 overflow-x-auto px-12 pb-3 [scrollbar-width:thin]"
+            >
+            {filteredPerfumes.map((perfume) => {
+              const isActive = perfume.sku === activePerfume.sku;
+              const perfumeImage = perfume.images?.[0] || perfume.image;
+
+              return (
+                <button
+                  key={perfume.sku}
+                  type="button"
+                  onClick={() => handleFeaturedPerfumeSelect(perfume.sku)}
+                  className={`min-h-[11rem] w-36 shrink-0 rounded-2xl border p-2.5 text-left transition active:scale-[0.98] sm:w-40 ${
+                    isActive
+                      ? 'border-[var(--color-luxury-gold)] bg-purple-950/60'
+                      : 'border-purple-900/40 bg-black/25'
+                  }`}
+                  aria-label={`Ver detalle de ${perfume.name}`}
+                >
+                  <div className="aspect-square overflow-hidden rounded-xl bg-white/5">
+                    {perfumeImage ? (
+                      <img
+                        src={perfumeImage}
+                        alt={perfume.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                        translate="no"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs font-bold text-purple-300">
+                        LTI
+                      </div>
+                    )}
+                  </div>
+
+                  <span
+                    translate="no"
+                    className="notranslate mt-2 block line-clamp-2 text-sm font-bold leading-snug text-white"
+                  >
+                    {perfume.name}
+                  </span>
+                  <span
+                    translate="no"
+                    className="notranslate mt-0.5 block truncate text-xs text-gray-400"
+                  >
+                    {formatBrandName(perfume.brand || '')}
+                  </span>
+                  <span className="mt-1 block text-sm font-bold text-[var(--color-luxury-gold)]">
+                    ${getEffectivePrice(perfume).toLocaleString('es-AR')}
+                  </span>
+                </button>
+              );
+            })}
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollAllPerfumes('right')}
+              className="absolute right-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--color-luxury-gold)]/25 bg-black/45 text-[var(--color-luxury-gold)] shadow-2xl backdrop-blur-md transition hover:bg-black/60 active:scale-95"
+              aria-label="Ver más perfumes"
+            >
+              <ChevronRight className="h-6 w-6" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {filteredPerfumes.length === 0 ? (
         <div className="rounded-xl border border-purple-900/40 bg-black/20 px-4 py-12 text-center lg:col-span-12">
