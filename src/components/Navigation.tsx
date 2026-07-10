@@ -92,28 +92,6 @@ export function Navigation({
             </button>
 
             <button
-              onClick={() => handleNavClick('bazar')}
-              className={`pb-1 transition-all duration-200 cursor-pointer ${
-                activeTab === 'bazar'
-                  ? 'text-white border-b-2 border-[var(--color-luxury-gold)] font-bold'
-                  : 'hover:text-white hover:border-b-2 hover:border-[var(--color-luxury-gold)]/40'
-              }`}
-            >
-              Mates y Bazar
-            </button>
-
-            <button
-              onClick={() => handleNavClick('tecnologia')}
-              className={`pb-1 transition-all duration-200 cursor-pointer ${
-                activeTab === 'tecnologia'
-                  ? 'text-white border-b-2 border-[var(--color-luxury-gold)] font-bold'
-                  : 'hover:text-white hover:border-b-2 hover:border-[var(--color-luxury-gold)]/40'
-              }`}
-            >
-              Tecnología
-            </button>
-
-            <button
               onClick={() => handleNavClick('guia')}
               className={`pb-1 transition-all duration-200 cursor-pointer ${
                 activeTab === 'guia'
@@ -185,20 +163,6 @@ export function Navigation({
                 className="w-full text-left block text-sm font-semibold tracking-wider text-white uppercase py-2.5 border-b border-purple-950 cursor-pointer"
               >
                 Perfumería Fina
-              </button>
-
-              <button
-                onClick={() => handleNavClick('bazar')}
-                className="w-full text-left block text-sm font-semibold tracking-wider text-gray-300 uppercase py-2.5 border-b border-purple-950 cursor-pointer"
-              >
-                Mates y Bazar Premium
-              </button>
-
-              <button
-                onClick={() => handleNavClick('tecnologia')}
-                className="w-full text-left block text-sm font-semibold tracking-wider text-gray-300 uppercase py-2.5 border-b border-purple-950 cursor-pointer"
-              >
-                Tecnología Seleccionada
               </button>
 
               <button

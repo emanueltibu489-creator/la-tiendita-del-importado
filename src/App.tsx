@@ -2,14 +2,11 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, HelpCircle, Compass, Heart, GraduationCap, MapPin, AlertCircle } from 'lucide-react';
 
-import { BAZAR, TECNO } from './data';
 import { Product, CartItem } from './types';
 import { getAvailablePerfumes } from './services/products';
 // Modular Components
 import { Navigation } from './components/Navigation';
 import { PerfumeDetail } from './components/PerfumeDetail';
-import { BazarSection } from './components/BazarSection';
-import { TechSection } from './components/TechSection';
 import { SommelierModal } from './components/SommelierModal';
 import { CartSidebar } from './components/CartSidebar';
 import { ToastContainer, ToastMessage } from './components/Toast';
@@ -315,17 +312,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* SECTION 3: BAZAR & MATES PREMIUM */}
-        <BazarSection
-          products={BAZAR}
-          onAddToCart={handleAddToCart}
-        />
-
-        {/* SECTION 4: HARDWARE Y TECNOLOGÍA SELECCIONADA */}
-        <TechSection
-          products={TECNO}
-          onAddToCart={handleAddToCart}
-        />
 
       </main>
 
