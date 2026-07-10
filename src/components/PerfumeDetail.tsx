@@ -28,6 +28,8 @@ const EMPTY_FILTERS: PerfumeFilterValues = {
   maxPrice: '',
 };
 
+const MOBILE_ALL_PERFUMES_KEY = '__all_perfumes__';
+
 function normalizeText(value: string): string {
   return value
     .normalize('NFD')
@@ -409,7 +411,67 @@ export function PerfumeDetail({
 
             {isMobileCatalogOpen && (
               <div id="perfume-brand-catalog" className="space-y-2 lg:hidden">
-                {selectedMobileBrandGroup ? (
+                {mobileSelectedBrandKey === MOBILE_ALL_PERFUMES_KEY ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setMobileSelectedBrandKey(null)}
+                      className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-purple-900/40 bg-black/25 px-4 py-3 text-left text-sm font-bold text-white"
+                    >
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="h-5 w-5 rotate-90 text-[var(--color-luxury-gold)]"
+                      />
+                      <span>Volver a marcas</span>
+                    </button>
+
+                    <div className="rounded-xl border border-purple-900/40 bg-black/20">
+                      <div className="flex items-center justify-between gap-3 border-b border-purple-900/40 px-4 py-3 text-base font-bold text-white">
+                        <span>Todos los perfumes</span>
+                      </div>
+
+                      {filteredPerfumes.map((perfume) => {
+                        const isActive = perfume.sku === activePerfume.sku;
+
+                        return (
+                          <button
+                            key={perfume.sku}
+                            type="button"
+                            onClick={() => {
+                              onSelectPerfume(perfume.sku);
+                              setIsMobileCatalogOpen(false);
+                              setMobileSelectedBrandKey(null);
+                            }}
+                            className={`flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0 ${
+                              isActive ? 'bg-purple-950/60' : 'bg-black/10'
+                            }`}
+                          >
+                            <span className="min-w-0">
+                              <span
+                                translate="no"
+                                className="notranslate block truncate text-base font-bold text-white"
+                              >
+                                {perfume.name}
+                              </span>
+
+                              <span
+                                translate="no"
+                                className="notranslate mt-0.5 block truncate text-sm text-gray-400"
+                              >
+                                {formatBrandName(perfume.brand)}
+                                {perfume.genero ? ` · ${perfume.genero}` : ''}
+                              </span>
+                            </span>
+
+                            <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
+                              ${getEffectivePrice(perfume).toLocaleString('es-AR')}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : selectedMobileBrandGroup ? (
                   <>
                     <button
                       type="button"
@@ -475,6 +537,20 @@ export function PerfumeDetail({
                     <div className="border-b border-purple-900/40 px-4 py-3 text-sm font-bold text-white">
                       Elegí una marca
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setMobileSelectedBrandKey(MOBILE_ALL_PERFUMES_KEY)}
+                      className="flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left"
+                    >
+                      <span className="min-w-0 truncate text-base font-bold text-white">
+                        Ver todos los perfumes
+                      </span>
+                      <ChevronDown
+                        aria-hidden="true"
+                        className="h-5 w-5 -rotate-90 text-[var(--color-luxury-gold)]"
+                      />
+                    </button>
 
                     {perfumeGroups.map((group) => (
                       <button
