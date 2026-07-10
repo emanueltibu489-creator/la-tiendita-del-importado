@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Brain, Check, X, ArrowRight, ArrowLeft, Send, Compass, AlertCircle } from 'lucide-react';
 import { Product } from '../types';
@@ -67,17 +67,82 @@ function normalizeProductGender(value?: string): Exclude<GenderPreference, 'indi
   return null;
 }
 
+function getWeightedProductScore(product: Product, answerValues: string[]): number {
+  const searchableText = getSearchableProductText(product);
+  const profileText = normalizeText(product.perfil_olfativo || product.metrics?.estilo || '');
+  const momentText = normalizeText(product.momento_ideal || product.metrics?.momento || '');
+  const projectionText = normalizeText(product.proyeccion || product.metrics?.proyeccion || '');
+  const notesText = normalizeText([
+    product.description,
+    product.descripcion_corta,
+    product.notes?.salida,
+    product.notes?.corazon,
+    product.notes?.fondo,
+  ].filter(Boolean).join(' '));
+
+  return answerValues.reduce((score, answer) => {
+    const keywords = PREFERENCE_KEYWORDS[answer] || [];
+    const generalMatches = keywords.filter((keyword) => searchableText.includes(keyword)).length;
+    let nextScore = score + generalMatches;
+
+    if (answer === 'dulce') {
+      nextScore += keywords.filter((keyword) => profileText.includes(keyword)).length * 4;
+      nextScore += keywords.filter((keyword) => notesText.includes(keyword)).length * 2;
+
+      if (profileText.includes('gourmand') || profileText.includes('dulce')) nextScore += 5;
+      if (notesText.includes('vainilla') || notesText.includes('caramelo')) nextScore += 3;
+      if (profileText.includes('citrico') || profileText.includes('acuatico') || profileText.includes('fresco')) nextScore -= 6;
+    }
+
+    if (answer === 'intenso') {
+      nextScore += keywords.filter((keyword) => profileText.includes(keyword)).length * 3;
+      nextScore += keywords.filter((keyword) => notesText.includes(keyword)).length * 2;
+
+      if (profileText.includes('oriental') || profileText.includes('amaderado') || profileText.includes('oud')) nextScore += 4;
+      if (profileText.includes('citrico') || profileText.includes('acuatico')) nextScore -= 4;
+    }
+
+    if (answer === 'fresco') {
+      nextScore += keywords.filter((keyword) => profileText.includes(keyword)).length * 4;
+      if (profileText.includes('citrico') || profileText.includes('acuatico') || profileText.includes('fresco')) nextScore += 5;
+      if (profileText.includes('gourmand') || profileText.includes('pesado')) nextScore -= 4;
+    }
+
+    if (answer === 'noche') {
+      nextScore += keywords.filter((keyword) => momentText.includes(keyword)).length * 4;
+      if (momentText.includes('noche') || momentText.includes('salida') || momentText.includes('cita')) nextScore += 5;
+      if (momentText.includes('dia') || momentText.includes('oficina') || momentText.includes('diario')) nextScore -= 5;
+    }
+
+    if (answer === 'dia') {
+      nextScore += keywords.filter((keyword) => momentText.includes(keyword)).length * 4;
+      if (momentText.includes('dia') || momentText.includes('diario') || momentText.includes('oficina')) nextScore += 5;
+      if (momentText.includes('noche') || momentText.includes('salida')) nextScore -= 3;
+    }
+
+    if (answer === 'alta') {
+      nextScore += keywords.filter((keyword) => projectionText.includes(keyword)).length * 5;
+      if (projectionText.includes('alta') || projectionText.includes('intensa') || projectionText.includes('fuerte')) nextScore += 7;
+      if (projectionText.includes('suave') || projectionText.includes('sutil') || projectionText.includes('moderada')) nextScore -= 8;
+    }
+
+    if (answer === 'moderada') {
+      nextScore += keywords.filter((keyword) => projectionText.includes(keyword)).length * 5;
+      if (projectionText.includes('moderada') || projectionText.includes('suave') || projectionText.includes('sutil')) nextScore += 6;
+      if (projectionText.includes('bestia') || projectionText.includes('muy alta')) nextScore -= 5;
+    }
+
+    return nextScore;
+  }, 0);
+}
+
 function rankProducts(products: Product[], answerValues: string[]): Product[] {
   return products
-    .map((product, index) => {
-      const searchableText = getSearchableProductText(product);
-      const score = answerValues.reduce((total, answer) => {
-        const keywords = PREFERENCE_KEYWORDS[answer] || [];
-        return total + keywords.filter((keyword) => searchableText.includes(keyword)).length;
-      }, 0);
-
-      return { product, score, index };
-    })
+    .map((product, index) => ({
+      product,
+      score: getWeightedProductScore(product, answerValues),
+      index,
+    }))
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .map(({ product }) => product);
 }
