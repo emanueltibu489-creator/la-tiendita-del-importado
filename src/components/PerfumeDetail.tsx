@@ -310,6 +310,15 @@ export function PerfumeDetail({
     activePerfume.descripcion_corta?.trim() ||
     activePerfume.description?.trim() ||
     generatedPerfumeDescription;
+  const handleFeaturedPerfumeSelect = (sku: string) => {
+    onSelectPerfume(sku);
+
+    window.setTimeout(() => {
+      document
+        .getElementById('perfume-sensorial-panel')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
   const handleRequestPerfumeQuote = () => {
     const message = [
       'Hola, estuve viendo el catálogo de La Tiendita del Importado.',
@@ -344,7 +353,7 @@ export function PerfumeDetail({
       <FeaturedPerfumes
         perfumes={perfumes}
         activeSku={activePerfume.sku}
-        onSelectPerfume={onSelectPerfume}
+        onSelectPerfume={handleFeaturedPerfumeSelect}
       />
 
       {filteredPerfumes.length === 0 ? (
