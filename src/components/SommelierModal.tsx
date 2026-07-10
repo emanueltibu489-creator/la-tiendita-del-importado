@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Brain, Check, X, ArrowRight, ArrowLeft, Send, Compass, AlertCircle } from 'lucide-react';
 import { Product } from '../types';
@@ -274,21 +274,6 @@ export function SommelierModal({
             }`}
           >
             Paso a Paso Express
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('ai');
-              setAiResponse('');
-              setQuery('');
-            }}
-            className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'ai'
-                ? 'bg-[var(--color-luxury-gold)] text-purple-950 shadow-md'
-                : 'text-gray-400 hover:text-white hover:bg-white/5 border border-purple-900/30'
-            }`}
-          >
-            <Brain className="w-3.5 h-3.5" />
-            Asesoría IA
           </button>
         </div>
         

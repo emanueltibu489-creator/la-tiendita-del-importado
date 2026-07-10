@@ -1,20 +1,36 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+﻿# La Tiendita del Importado
 
-# Run and deploy your AI Studio app
+Aplicación web de La Tiendita del Importado para mostrar productos importados, con foco actual en perfumes árabes.
 
-This contains everything you need to run your app locally.
+## Funciones actuales
 
-View your app in AI Studio: https://ai.studio/apps/deb55da6-a33d-46aa-9195-821a2edc3b0d
+- Catálogo de perfumes cargado desde Supabase.
+- Stock real y SKU como identidad principal.
+- Ofertas relámpago y destacados desde datos reales.
+- Ficha de perfume con imágenes, notas y descripción.
+- Carrito/reserva por SKU.
+- Mensaje de WhatsApp con nombre, SKU, cantidad, precio unitario y subtotal.
+- Sommelier express con productos disponibles.
+- CTA para cotizar por WhatsApp productos que no aparecen en catálogo.
 
-## Run Locally
+## Flujo de datos
 
-**Prerequisites:**  Node.js
+Google Sheets → Supabase → App.
 
+La app no debe inventar stock, precios, descuentos ni nombres comerciales.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Comandos
+
+```powershell
+npm install
+npm run dev
+npm run lint
+npm run build
+```
+
+## Pendientes principales
+
+- Migrar la asesoría IA/Gemini para que use productos reales desde Supabase.
+- Revisar RLS y permisos públicos de Supabase.
+- Mejorar metadata social/Open Graph antes de una campaña más amplia.
+- Agregar medición de eventos cuando se defina herramienta y política.

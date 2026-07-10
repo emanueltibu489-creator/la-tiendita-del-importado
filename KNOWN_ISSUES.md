@@ -1,4 +1,4 @@
-# Problemas conocidos
+﻿# Problemas conocidos
 
 ## Críticos o de alta prioridad
 
@@ -49,6 +49,12 @@ La respuesta de Gemini se muestra como texto. Hasta migrar el servidor:
 - no hay SKU estructurado;
 - no se valida el producto mencionado;
 - podría generar afirmaciones no respaldadas.
+
+Decisión para la prueba pública inicial:
+
+- la asesoría IA/Gemini queda fuera del flujo comercial principal;
+- el Sommelier express sí puede usarse porque trabaja con productos reales disponibles;
+- no usar la IA como promesa de venta hasta migrar `server.ts` a Supabase y validar SKU/stock.
 
 ### Nombres traducidos por el navegador
 
