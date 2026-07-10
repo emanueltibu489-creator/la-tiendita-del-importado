@@ -67,12 +67,24 @@ Criterio de terminado:
 - Añadir consulta por WhatsApp vinculada al SKU.
 - Revisar afirmaciones comerciales no verificadas.
 
+## Prioridad siguiente: prueba social y conversión
+
+- Generar QR profesional hacia la app oficial para historias, WhatsApp y piezas impresas.
+- Preparar pieza simple de prueba social con QR, logo, CTA y pedido de feedback concreto.
+- Agregar en el formulario/cajita inferior una captura real de datos del cliente.
+- Guardar esos datos en Google Sheets o fuente equivalente antes de automatizar ventas.
+- Evaluar mensaje de bienvenida por WhatsApp o correo después de validar consentimiento y flujo legal/comercial.
+- Cambiar el texto del hero de "ofertas" a "oferta relámpago" donde corresponda para comunicar mejor la sección.
+
 ## Prioridad siguiente: catálogo
 
 - Búsqueda.
 - Filtros por orientación, perfil, ocasión, estación y precio.
 - Estados claros de carga, error, vacío y reintento.
 - Separar Bazar y Tecno de datos estáticos cuando exista una fuente real.
+- Crear una sección de scroll liviano con todos los perfumes usando la primera imagen, nombre, marca y precio.
+- Permitir entrar desde esa lista compacta al detalle completo del perfume.
+- Mantener navegación por marcas, pero mejorar la exploración cuando el cliente quiere scrollear todo el stock.
 
 ## Prioridad siguiente: navegación
 
@@ -112,5 +124,6 @@ Definir herramienta y política de privacidad antes de implementar.
 - Persistencia de carrito.
 - Automatización de stock.
 - Newsletter real.
+- Mejorar Sommelier con IA conectada a productos reales, validando SKU y evitando recomendaciones inventadas.
 - Optimización del bundle.
 - Documentación de despliegue.
