@@ -5,6 +5,7 @@ interface SupabaseProductRow {
   sku: string | null;
   marca: string | null;
   nombre: string | null;
+  ml: number | string | null;
   precio_ars: number | string | null;
   precio_oferta_ars: number | string | null;
   stock: number | string | null;
@@ -29,6 +30,7 @@ const PRODUCT_COLUMNS = `
   sku,
   marca,
   nombre,
+  ml,
   precio_ars,
   precio_oferta_ars,
   stock,
@@ -82,6 +84,7 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
     sku,
     brand: row.marca || 'Sin marca',
     name: row.nombre || 'Producto sin nombre',
+    ml: row.ml?.toString().trim() || undefined,
     price,
     offerPrice: offerPrice > 0 ? offerPrice : null,
     stock,

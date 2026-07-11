@@ -20,6 +20,7 @@ export interface Product {
   sku: string;
   brand?: string;
   name: string;
+  ml?: number | string;
   price: number;
   offerPrice?: number | null;
   stock?: number;

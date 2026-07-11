@@ -73,6 +73,14 @@ function chooseBrandName(current: string, next: string): string {
   return currentClean;
 }
 
+function formatMl(value?: number | string): string {
+  const cleaned = value?.toString().trim();
+
+  if (!cleaned) return '';
+
+  return cleaned.toLowerCase().includes('ml') ? cleaned : cleaned + ' ml';
+}
+
 function normalizeGender(
   value?: string,
 ): Exclude<PerfumeFilterValues['gender'], 'todos'> | '' {
@@ -241,6 +249,7 @@ export function PerfumeDetail({
   }, [expandedBrand, perfumeGroups]);
   const activeHasOffer = hasValidFlashOffer(activePerfume);
   const activeEffectivePrice = getEffectivePrice(activePerfume);
+  const activePerfumeMl = formatMl(activePerfume.ml);
   const deposit = activeEffectivePrice * 0.3;
   const salidaText = activePerfume.notes?.salida?.trim() || '';
   const estiloRaw = (
@@ -442,6 +451,7 @@ export function PerfumeDetail({
                     className="notranslate mt-0.5 block truncate text-xs text-gray-400"
                   >
                     {formatBrandName(perfume.brand || '')}
+                    {formatMl(perfume.ml) ? ` · ${formatMl(perfume.ml)}` : ''}
                   </span>
                   <span className="mt-1 block text-sm font-bold text-[var(--color-luxury-gold)]">
                     ${getEffectivePrice(perfume).toLocaleString('es-AR')}
@@ -813,11 +823,19 @@ export function PerfumeDetail({
                           {activePerfume.name}
                         </h2>
 
-                        {activePerfume.badge && (
-                          <span className="mt-1.5 inline-block max-w-full break-words rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[var(--color-luxury-gold)]">
-                            {activePerfume.badge}
-                          </span>
-                        )}
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          {activePerfume.badge && (
+                            <span className="inline-block max-w-full break-words rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[var(--color-luxury-gold)]">
+                              {activePerfume.badge}
+                            </span>
+                          )}
+
+                          {activePerfumeMl && (
+                            <span className="inline-block rounded-full border border-purple-400/25 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-purple-200">
+                              {activePerfumeMl}
+                            </span>
+                          )}
+                        </div>
 
                         {perfumeShortDescription && (
                           <p className="mt-3 max-w-xl line-clamp-3 break-words text-sm font-light leading-relaxed text-gray-300">
