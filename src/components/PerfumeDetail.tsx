@@ -81,6 +81,14 @@ function formatMl(value?: number | string): string {
   return cleaned.toLowerCase().includes('ml') ? cleaned : cleaned + ' ml';
 }
 
+function formatGender(value?: string): string {
+  const cleaned = value?.trim();
+
+  if (!cleaned) return '';
+
+  return cleaned;
+}
+
 function normalizeGender(
   value?: string,
 ): Exclude<PerfumeFilterValues['gender'], 'todos'> | '' {
@@ -250,6 +258,7 @@ export function PerfumeDetail({
   const activeHasOffer = hasValidFlashOffer(activePerfume);
   const activeEffectivePrice = getEffectivePrice(activePerfume);
   const activePerfumeMl = formatMl(activePerfume.ml);
+  const activePerfumeGender = formatGender(activePerfume.genero);
   const deposit = activeEffectivePrice * 0.3;
   const salidaText = activePerfume.notes?.salida?.trim() || '';
   const estiloRaw = (
@@ -833,6 +842,12 @@ export function PerfumeDetail({
                           {activePerfumeMl && (
                             <span className="inline-block rounded-full border border-purple-400/25 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-purple-200">
                               {activePerfumeMl}
+                            </span>
+                          )}
+
+                          {activePerfumeGender && (
+                            <span className="inline-block rounded-full border border-[var(--color-luxury-gold)]/25 bg-[var(--color-luxury-gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-luxury-gold)]">
+                              {activePerfumeGender}
                             </span>
                           )}
                         </div>
