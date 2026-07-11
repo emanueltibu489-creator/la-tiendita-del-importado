@@ -226,6 +226,22 @@ export default function App() {
   </div>
 </section>
 
+<section className="mb-8 rounded-2xl border border-[var(--color-luxury-gold)]/25 bg-black/25 px-4 py-3 shadow-xl backdrop-blur-sm sm:px-6">
+  <div className="flex flex-col items-center justify-center gap-2 text-center sm:flex-row sm:gap-4">
+    <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--color-luxury-gold)]">
+      Perfumes originales
+    </span>
+    <span className="hidden h-1 w-1 rounded-full bg-purple-300/70 sm:block" />
+    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-100">
+      Stock real
+    </span>
+    <span className="hidden h-1 w-1 rounded-full bg-purple-300/70 sm:block" />
+    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-100">
+      Reserva por WhatsApp
+    </span>
+  </div>
+</section>
+
         {/* SECTION 1: PERFUMERÍA  Y CUADRANTE SENSORIAL */}
   {isLoadingPerfumes ? (
     <div className="text-center py-16 text-gray-400">
