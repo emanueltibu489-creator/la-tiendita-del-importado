@@ -100,6 +100,7 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
       row.notas_corazon ||
       'Descubrí esta fragancia exclusiva.',
     descripcion_corta: row.descripcion_corta || '',
+    tipoProducto: row.categoria?.trim() || undefined,
     perfil_olfativo: row.perfil_olfativo || '',
     genero: row.genero || '',
     momento_ideal: row.momento_ideal || '',

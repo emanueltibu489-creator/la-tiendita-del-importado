@@ -30,6 +30,7 @@ export interface Product {
   description: string;
   shortDesc?: string;
   descripcion_corta?: string;
+  tipoProducto?: string;
   perfil_olfativo?: string;
   genero?: string;
   momento_ideal?: string;

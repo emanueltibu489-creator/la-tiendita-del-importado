@@ -122,6 +122,9 @@ export function PerfumeDetail({
   const [filters, setFilters] =
     useState<PerfumeFilterValues>(EMPTY_FILTERS);
   const allPerfumesScrollRef = useRef<HTMLDivElement | null>(null);
+  const descriptionRef = useRef<HTMLParagraphElement | null>(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
 
   const [expandedBrand, setExpandedBrand] = useState<string | null>(
     getBrandKey(activePerfume.brand),
@@ -259,6 +262,7 @@ export function PerfumeDetail({
   const activeEffectivePrice = getEffectivePrice(activePerfume);
   const activePerfumeMl = formatMl(activePerfume.ml);
   const activePerfumeGender = formatGender(activePerfume.genero);
+  const activeProductType = activePerfume.tipoProducto?.trim();
   const deposit = activeEffectivePrice * 0.3;
   const salidaText = activePerfume.notes?.salida?.trim() || '';
   const estiloRaw = (
@@ -331,6 +335,17 @@ export function PerfumeDetail({
     activePerfume.descripcion_corta?.trim() ||
     activePerfume.description?.trim() ||
     generatedPerfumeDescription;
+  useEffect(() => {
+    setIsDescriptionExpanded(false);
+  }, [activePerfume.sku]);
+  useEffect(() => {
+    const description = descriptionRef.current;
+    if (!description || isDescriptionExpanded) {
+      setIsDescriptionTruncated(false);
+      return;
+    }
+    setIsDescriptionTruncated(description.scrollHeight > description.clientHeight + 1);
+  }, [activePerfume.sku, isDescriptionExpanded, perfumeShortDescription]);
   const handleFeaturedPerfumeSelect = (sku: string) => {
     onSelectPerfume(sku);
 
@@ -641,8 +656,9 @@ export function PerfumeDetail({
                               </span>
 
                               {perfume.genero && (
-                                <span className="mt-0.5 block text-sm text-gray-400">
+                                <span translate="no" className="notranslate mt-0.5 block text-sm text-gray-400">
                                   {perfume.genero}
+                                  {getBrandKey(perfume.brand) === getBrandKey("Victoria's Secret") && perfume.tipoProducto ? ` \u00b7 ${perfume.tipoProducto}` : ''}
                                 </span>
                               )}
                             </span>
@@ -762,8 +778,9 @@ export function PerfumeDetail({
                                 </span>
 
                                 {perfume.genero && (
-                                  <span className="mt-0.5 block text-sm text-gray-400">
+                                  <span translate="no" className="notranslate mt-0.5 block text-sm text-gray-400">
                                     {perfume.genero}
+                                    {getBrandKey(perfume.brand) === getBrandKey("Victoria's Secret") && perfume.tipoProducto ? ` \u00b7 ${perfume.tipoProducto}` : ''}
                                   </span>
                                 )}
                               </span>
@@ -850,12 +867,35 @@ export function PerfumeDetail({
                               {activePerfumeGender}
                             </span>
                           )}
+                          {activeProductType && (
+                            <span
+                              translate="no"
+                              className="notranslate inline-block rounded-full border border-cyan-400/25 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-cyan-200"
+                            >
+                              {activeProductType}
+                            </span>
+                          )}
                         </div>
 
                         {perfumeShortDescription && (
-                          <p className="mt-3 max-w-xl line-clamp-3 break-words text-sm font-light leading-relaxed text-gray-300">
-                            {perfumeShortDescription}
-                          </p>
+                          <div className="mt-3 max-w-xl">
+                            <p
+                              ref={descriptionRef}
+                              className={isDescriptionExpanded ? 'break-words text-sm font-light leading-relaxed text-gray-300' : 'line-clamp-3 break-words text-sm font-light leading-relaxed text-gray-300'}
+                            >
+                              {perfumeShortDescription}
+                            </p>
+                            {(isDescriptionTruncated || isDescriptionExpanded) && (
+                              <button
+                                type="button"
+                                onClick={() => setIsDescriptionExpanded((expanded) => !expanded)}
+                                aria-expanded={isDescriptionExpanded}
+                                className="mt-1.5 text-xs font-semibold text-[var(--color-luxury-gold)] underline underline-offset-4 transition-colors hover:text-yellow-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-luxury-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#12071f]"
+                              >
+                                {isDescriptionExpanded ? 'Leer menos' : 'Leer m\u00e1s'}
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
