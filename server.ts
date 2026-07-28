@@ -10,6 +10,24 @@ dotenv.config();
 
 let aiClient: GoogleGenAI | null = null;
 
+const SOMMELIER_MAX_QUERY_LENGTH = 500;
+const SOMMELIER_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const SOMMELIER_MAX_REQUESTS_PER_WINDOW = 8;
+const sommelierRequests = new Map<string, { count: number; resetAt: number }>();
+
+function consumeSommelierRequest(ip: string) {
+  const now = Date.now();
+  const current = sommelierRequests.get(ip);
+  if (!current || current.resetAt <= now) {
+    sommelierRequests.set(ip, { count: 1, resetAt: now + SOMMELIER_RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+  if (current.count >= SOMMELIER_MAX_REQUESTS_PER_WINDOW) {
+    return { allowed: false, retryAfterSeconds: Math.ceil((current.resetAt - now) / 1000) };
+  }
+  current.count += 1;
+  return { allowed: true, retryAfterSeconds: 0 };
+}
 function getAiClient(): GoogleGenAI {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -33,14 +51,28 @@ async function startServer() {
   const PORT = 3000;
 
   // JSON parsing middleware
-  app.use(express.json());
+  app.use(express.json({ limit: '8kb' }));
 
   // API endpoint for AI Sommelier
   app.post('/api/sommelier', async (req, res) => {
     try {
-      const { query } = req.body;
+      const query = typeof req.body?.query === 'string' ? req.body.query.trim() : '';
       if (!query) {
         return res.status(400).json({ error: 'La consulta es requerida.' });
+      }
+
+      if (query.length > SOMMELIER_MAX_QUERY_LENGTH) {
+        return res.status(400).json({
+          error: `La consulta no puede superar ${SOMMELIER_MAX_QUERY_LENGTH} caracteres.`,
+        });
+      }
+
+      const rateLimit = consumeSommelierRequest(req.ip);
+      if (!rateLimit.allowed) {
+        res.set('Retry-After', String(rateLimit.retryAfterSeconds));
+        return res.status(429).json({
+          error: 'Demasiadas consultas. Probá nuevamente en unos minutos.',
+        });
       }
 
       const ai = getAiClient();
@@ -85,7 +117,6 @@ Tu tarea:
       console.error('Error in/api/sommelier:', error);
       res.status(500).json({
         error: 'Error interno de procesamiento de IA.',
-        details: error?.message || String(error),
       });
     }
   });
