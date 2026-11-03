@@ -14,6 +14,7 @@ import { BrandEmblem } from './components/BrandLogo';
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import { WHATSAPP_NUMBER } from './config/business';
 import { Mascota } from "./components/Mascota";
+import { findPerfumeFromUrl, showPerfumeInUrl } from './utils/perfumeLink';
 
 const CART_STORAGE_KEY = 'lti-reserva';
 
@@ -186,6 +187,7 @@ export default function App() {
     const perf = perfumes.find((p) => p.sku === sku);
     if (perf) {
       setActivePerfume(perf);
+      showPerfumeInUrl(perf);
     }
     };
     useEffect(() => {
@@ -198,7 +200,16 @@ export default function App() {
           setPerfumes(perfumesWithImages);
           restoreSavedCart(perfumesWithImages);
 
-          if (perfumesWithImages.length > 0) {
+          // Si entraron con el link de un perfume, se abre su ficha directo
+          const linkedPerfume = findPerfumeFromUrl(perfumesWithImages);
+          if (linkedPerfume) {
+            setActivePerfume(linkedPerfume);
+            window.setTimeout(() => {
+              document
+                .getElementById('perfume-sensorial-panel')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+          } else if (perfumesWithImages.length > 0) {
             setActivePerfume(perfumesWithImages[0]);
           } else {
             setActivePerfume(null);

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ChevronDown, ChevronLeft, ChevronRight, Compass, Search, ShieldCheck } from 'lucide-react';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Compass, Search, Share2, ShieldCheck } from 'lucide-react';
 
 import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
 import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
+import { getPerfumeUrl } from '../utils/perfumeLink';
 import { FeaturedPerfumes } from './FeaturedPerfumes';
 import { ProductGallery } from './ProductGallery';
 import {
@@ -357,6 +358,35 @@ export function PerfumeDetail({
         .getElementById('perfume-brand-finder')
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 60);
+  };
+
+  // Celu: abre el menú de compartir (WhatsApp, IG…). Compu: copia el link.
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    setLinkCopied(false);
+  }, [activePerfume.sku]);
+
+  const handleSharePerfume = async () => {
+    const url = getPerfumeUrl(activePerfume);
+    const title = `${activePerfume.brand} ${activePerfume.name}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text: `Mirá este perfume: ${title}`, url });
+        return;
+      } catch (error) {
+        if ((error as DOMException)?.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      window.setTimeout(() => setLinkCopied(false), 2500);
+    } catch {
+      window.prompt('Copiá el link del perfume:', url);
+    }
   };
 
   // Elegir un perfume (destacados, carrusel o lista por marca) siempre lleva a su ficha
@@ -919,6 +949,19 @@ export function PerfumeDetail({
                             </span>
                           )}
                         </div>
+
+                        <button
+                          type="button"
+                          onClick={handleSharePerfume}
+                          className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[var(--color-luxury-gold)]/40 bg-black/30 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-[var(--color-luxury-gold)] transition-colors hover:bg-[var(--color-luxury-gold)]/10 active:scale-95"
+                        >
+                          {linkCopied ? (
+                            <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                          ) : (
+                            <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+                          )}
+                          {linkCopied ? 'Link copiado' : 'Compartir este perfume'}
+                        </button>
 
                         {perfumeShortDescription && (
                           <div className="mt-3 max-w-xl">
