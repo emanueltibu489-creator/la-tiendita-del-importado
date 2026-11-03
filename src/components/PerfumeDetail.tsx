@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ChevronDown, ChevronLeft, ChevronRight, Compass, ShieldCheck } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Compass, Search, ShieldCheck } from 'lucide-react';
 
 import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
@@ -346,6 +346,19 @@ export function PerfumeDetail({
     }
     setIsDescriptionTruncated(description.scrollHeight > description.clientHeight + 1);
   }, [activePerfume.sku, isDescriptionExpanded, perfumeShortDescription]);
+  // Celu: al abrir el buscador, elegir una marca o volver, la pantalla sube al inicio del
+  // buscador; si no, la lista nueva arranca más arriba de donde estabas y quedás perdido.
+  const openMobileBrand = (brandKey: string | null) => {
+    setMobileSelectedBrandKey(brandKey);
+    setIsMobileCatalogOpen(true);
+
+    window.setTimeout(() => {
+      document
+        .getElementById('perfume-brand-finder')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+  };
+
   // Elegir un perfume (destacados, carrusel o lista por marca) siempre lleva a su ficha
   const handleFeaturedPerfumeSelect = (sku: string) => {
     onSelectPerfume(sku);
@@ -522,31 +535,69 @@ export function PerfumeDetail({
               </span>
             </div>
 
-            <button
-              type="button"
-              aria-expanded={isMobileCatalogOpen}
-              aria-controls="perfume-brand-catalog"
-              onClick={() => {
-                if (isMobileCatalogOpen) {
-                  setMobileSelectedBrandKey(null);
-                }
-
-                setIsMobileCatalogOpen(!isMobileCatalogOpen);
-              }}
-              className="flex min-h-11 w-full items-center justify-between rounded-xl border border-purple-900/40 bg-black/25 px-4 py-3 text-left text-sm font-bold text-white lg:hidden"
+            {/* Buscador por marca (celu): bien visible, con atajos a cada marca */}
+            <div
+              id="perfume-brand-finder"
+              className="scroll-mt-24 rounded-2xl border border-[var(--color-luxury-gold)]/50 bg-gradient-to-br from-[var(--color-luxury-purple-900)]/70 to-black/40 p-3 shadow-[0_0_24px_rgba(212,175,55,0.12)] lg:hidden"
             >
-              <span>
-                {isMobileCatalogOpen
-                  ? 'Cerrar marcas y perfumes'
-                  : 'Ver marcas y perfumes'}
-              </span>
-              <ChevronDown
-                aria-hidden="true"
-                className={`h-5 w-5 shrink-0 text-[var(--color-luxury-gold)] transition-transform ${
-                  isMobileCatalogOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
+              <button
+                type="button"
+                aria-expanded={isMobileCatalogOpen}
+                aria-controls="perfume-brand-catalog"
+                onClick={() => {
+                  if (isMobileCatalogOpen) {
+                    setMobileSelectedBrandKey(null);
+                    setIsMobileCatalogOpen(false);
+                    return;
+                  }
+                  openMobileBrand(null);
+                }}
+                className="flex min-h-12 w-full items-center gap-3 rounded-xl bg-[var(--color-luxury-gold)] px-4 py-3 text-left text-purple-950 shadow-md active:scale-[0.99]"
+              >
+                <Search aria-hidden="true" className="h-5 w-5 shrink-0" />
+                <span className="min-w-0 flex-1">
+                  <span className="font-luxury block text-xl font-bold leading-none">
+                    {isMobileCatalogOpen ? 'Cerrar buscador' : 'Buscá por marca'}
+                  </span>
+                  {!isMobileCatalogOpen && (
+                    <span className="mt-1 block text-[11px] font-semibold uppercase tracking-wider opacity-80">
+                      {perfumeGroups.length} marcas · {filteredPerfumes.length} perfumes
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className={`h-5 w-5 shrink-0 transition-transform ${
+                    isMobileCatalogOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Atajos: las marcas más grandes primero, deslizables de costado */}
+              <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {[...perfumeGroups]
+                  .sort((a, b) => b.perfumes.length - a.perfumes.length)
+                  .map((group) => {
+                    const isSelected = isMobileCatalogOpen && mobileSelectedBrandKey === group.key;
+                    return (
+                      <button
+                        key={group.key}
+                        type="button"
+                        onClick={() => openMobileBrand(group.key)}
+                        translate="no"
+                        className={`notranslate shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                          isSelected
+                            ? 'border-[var(--color-luxury-gold)] bg-[var(--color-luxury-gold)] text-purple-950'
+                            : 'border-[var(--color-luxury-gold)]/40 bg-black/30 text-[var(--color-luxury-gold)]'
+                        }`}
+                      >
+                        {group.brand}
+                        <span className="ml-1 opacity-60">{group.perfumes.length}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
 
             {isMobileCatalogOpen && (
               <div id="perfume-brand-catalog" className="space-y-2 lg:hidden">
@@ -554,7 +605,7 @@ export function PerfumeDetail({
                   <>
                     <button
                       type="button"
-                      onClick={() => setMobileSelectedBrandKey(null)}
+                      onClick={() => openMobileBrand(null)}
                       className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-purple-900/40 bg-black/25 px-4 py-3 text-left text-sm font-bold text-white"
                     >
                       <ChevronDown
@@ -614,7 +665,7 @@ export function PerfumeDetail({
                   <>
                     <button
                       type="button"
-                      onClick={() => setMobileSelectedBrandKey(null)}
+                      onClick={() => openMobileBrand(null)}
                       className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-purple-900/40 bg-black/25 px-4 py-3 text-left text-sm font-bold text-white"
                     >
                       <ChevronDown
@@ -627,9 +678,14 @@ export function PerfumeDetail({
                     <div className="rounded-xl border border-purple-900/40 bg-black/20">
                       <div
                         translate="no"
-                        className="notranslate border-b border-purple-900/40 px-4 py-3 text-base font-bold text-white"
+                        className="notranslate flex items-baseline justify-between gap-3 border-b border-purple-900/40 px-4 py-3 text-white"
                       >
-                        {selectedMobileBrandGroup.brand}
+                        <span className="font-luxury text-2xl font-bold text-[var(--color-luxury-gold)]">
+                          {selectedMobileBrandGroup.brand}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {selectedMobileBrandGroup.perfumes.length} perfumes
+                        </span>
                       </div>
 
                       {selectedMobileBrandGroup.perfumes.map((perfume) => {
@@ -680,7 +736,7 @@ export function PerfumeDetail({
 
                     <button
                       type="button"
-                      onClick={() => setMobileSelectedBrandKey(MOBILE_ALL_PERFUMES_KEY)}
+                      onClick={() => openMobileBrand(MOBILE_ALL_PERFUMES_KEY)}
                       className="flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left"
                     >
                       <span className="min-w-0 truncate text-base font-bold text-white">
@@ -696,7 +752,7 @@ export function PerfumeDetail({
                       <button
                         key={group.key}
                         type="button"
-                        onClick={() => setMobileSelectedBrandKey(group.key)}
+                        onClick={() => openMobileBrand(group.key)}
                         className="flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0"
                       >
                         <span
@@ -704,6 +760,9 @@ export function PerfumeDetail({
                           className="notranslate min-w-0 truncate text-base font-bold text-white"
                         >
                           {group.brand}
+                          <span className="ml-2 text-xs font-normal text-gray-400">
+                            {group.perfumes.length}
+                          </span>
                         </span>
                         <ChevronDown
                           aria-hidden="true"
