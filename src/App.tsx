@@ -14,7 +14,8 @@ import { BrandEmblem } from './components/BrandLogo';
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import { WHATSAPP_NUMBER } from './config/business';
 import { Mascota } from "./components/Mascota";
-import { findPerfumeFromUrl, showPerfumeInUrl } from './utils/perfumeLink';
+import { findPerfumeFromUrl, getPerfumeSlug, PERFUME_PARAM, showPerfumeInUrl } from './utils/perfumeLink';
+import { Analytics } from '@vercel/analytics/react';
 
 const CART_STORAGE_KEY = 'lti-reserva';
 
@@ -229,6 +230,12 @@ export default function App() {
     }, []);
 
   const totalCartCount = cartItems.reduce((acc, curr) => acc + curr.quantity, 0);
+
+  // Solo cuenta un perfume cuando alguien lo eligió o entró con su link (el que se muestra por defecto no)
+  const viewedPerfumePath =
+    activePerfume && new URLSearchParams(window.location.search).has(PERFUME_PARAM)
+      ? `/perfume/${getPerfumeSlug(activePerfume)}`
+      : null;
 
   return (
     <div className="text-gray-200 min-h-screen relative pb-20 antialiased overflow-x-hidden selection:bg-[var(--color-luxury-gold)]/30 selection:text-white">
@@ -551,6 +558,13 @@ export default function App() {
       {/* SYSTEM NOTIFICATIONS CONTAINER */}
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
       <WhatsAppWidget hidden={isSommelierOpen || isCartOpen} />
+      {/* Vercel Analytics: cada perfume que se mira cuenta como su propia página (/perfume/marca-nombre-ml) */}
+      {!isLoadingPerfumes && (
+        <Analytics
+          route={viewedPerfumePath ? '/perfume/[perfume]' : '/'}
+          path={viewedPerfumePath ?? '/'}
+        />
+      )}
     </div>
   );
 }
