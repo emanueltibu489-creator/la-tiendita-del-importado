@@ -118,7 +118,7 @@ export function FeaturedPerfumes({
             Destacados y oferta relámpago
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
-            Perfumes elegidos para encontrar rápido una opción con stock real.
+            Perfumes elegidos para encontrar rápido una opción, disponibles o a pedido.
           </p>
         </div>
 

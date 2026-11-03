@@ -296,7 +296,7 @@ export default function App() {
     </span>
     <span className="hidden h-1 w-1 rounded-full bg-purple-300/70 sm:block" />
     <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-100">
-      Stock real
+      Disponibles y a pedido
     </span>
     <span className="hidden h-1 w-1 rounded-full bg-purple-300/70 sm:block" />
     <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-100">
@@ -378,7 +378,7 @@ export default function App() {
                 </div>
                 <h4 className="font-luxury text-lg font-bold text-white mb-2">Sommelier de Fragancias</h4>
                 <p className="text-xs text-gray-300 leading-relaxed font-light mb-4">
-                  ¿Aún tienes dudas sobre cuál es tu fragancia ideal? Nuestro consultor digital califica tu tipo de piel, clima y ocasión en solo 3 pasos rápidos.
+                  ¿Todavía no sabés cuál es tu fragancia ideal? Respondé 4 preguntas rápidas (qué buscás, qué sensación, para qué momento y cuánta presencia) y te mostramos las que mejor van con vos.
                 </p>
               </div>
               <button
