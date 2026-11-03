@@ -66,7 +66,7 @@ export default function WhatsAppWidget() {
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-[120px] right-6 z-[1000] flex flex-col items-end gap-3"
+      className="fixed bottom-[112px] right-4 z-[1000] sm:bottom-[120px] sm:right-6 flex flex-col items-end gap-3"
     >
       {open && (
         <div
@@ -107,7 +107,7 @@ export default function WhatsAppWidget() {
               setOpen(true);
               setShowLabel(false);
             }}
-            className="rounded-full border border-[var(--color-luxury-gold)]/50 bg-black/85 px-3.5 py-2 text-xs font-bold text-white shadow-2xl backdrop-blur-md"
+            className="rounded-full border border-[var(--color-luxury-gold)]/50 bg-black/85 px-3 py-1.5 text-[11px] font-bold text-white sm:px-3.5 sm:py-2 sm:text-xs shadow-2xl backdrop-blur-md"
           >
             ¿Te ayudamos a elegir? 💬
           </button>
@@ -122,7 +122,7 @@ export default function WhatsAppWidget() {
           aria-label={open ? "Cerrar menú de WhatsApp" : "Abrir chat de WhatsApp"}
           aria-expanded={open}
           aria-controls="whatsapp-menu"
-          className="relative flex h-[60px] w-[60px] items-center justify-center rounded-full bg-gradient-to-br from-[#2BE071] to-[#128C7E] text-white shadow-[0_6px_24px_rgba(37,211,102,0.5)] ring-2 ring-[var(--color-luxury-gold)]/80 ring-offset-2 ring-offset-black/40 transition-transform hover:scale-105 active:scale-95"
+          className="relative flex h-[50px] w-[50px] items-center sm:h-[60px] sm:w-[60px] justify-center rounded-full bg-gradient-to-br from-[#2BE071] to-[#128C7E] text-white shadow-[0_6px_24px_rgba(37,211,102,0.5)] ring-2 ring-[var(--color-luxury-gold)]/80 ring-offset-2 ring-offset-black/40 transition-transform hover:scale-105 active:scale-95"
         >
           {/* Onda suave para llamar la atención; se apaga si el usuario pidió menos movimiento */}
           {!open && (
@@ -132,9 +132,9 @@ export default function WhatsAppWidget() {
             />
           )}
           {open ? (
-            <X className="relative h-7 w-7" aria-hidden="true" />
+            <X className="relative h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
           ) : (
-            <WhatsAppIcon className="relative h-[30px] w-[30px]" />
+            <WhatsAppIcon className="relative h-[25px] w-[25px] sm:h-[30px] sm:w-[30px]" />
           )}
         </button>
       </div>
