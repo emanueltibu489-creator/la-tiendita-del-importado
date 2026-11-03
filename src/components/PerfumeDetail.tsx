@@ -370,6 +370,64 @@ export function PerfumeDetail({
     }, 80);
   };
 
+  // Celu: los perfumes de la marca elegida en una tira con miniaturas que se desliza de
+  // costado. Queda abierta al tocar uno, así podés seguir mirando la misma marca.
+  const renderMobilePerfumeStrip = (stripPerfumes: Product[]) => (
+    <>
+      <div className="-mx-1 flex snap-x snap-mandatory scroll-px-3 gap-2.5 overflow-x-auto px-3 pb-3 pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {stripPerfumes.map((perfume) => {
+          const isActive = perfume.sku === activePerfume.sku;
+          const perfumeImage = perfume.images?.[0] || perfume.image;
+
+          return (
+            <button
+              key={perfume.sku}
+              type="button"
+              onClick={() => handleFeaturedPerfumeSelect(perfume.sku)}
+              aria-label={`Ver detalle de ${perfume.name}`}
+              className={`w-[7.5rem] shrink-0 snap-start rounded-xl border p-2 text-left transition active:scale-[0.97] ${
+                isActive
+                  ? 'border-[var(--color-luxury-gold)] bg-purple-950/70 shadow-[0_0_14px_rgba(212,175,55,0.25)]'
+                  : 'border-purple-900/40 bg-black/25'
+              }`}
+            >
+              <div className="aspect-square overflow-hidden rounded-lg bg-white/5">
+                {perfumeImage ? (
+                  <img
+                    src={perfumeImage}
+                    alt={perfume.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                    translate="no"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs font-bold text-purple-300">
+                    LTI
+                  </div>
+                )}
+              </div>
+              <span
+                translate="no"
+                className="notranslate mt-1.5 block line-clamp-2 text-[13px] font-bold leading-tight text-white"
+              >
+                {perfume.name}
+              </span>
+              <span className="mt-0.5 block text-[13px] font-bold text-[var(--color-luxury-gold)]">
+                ${getEffectivePrice(perfume).toLocaleString('es-AR')}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {stripPerfumes.length > 2 && (
+        <p className="flex items-center justify-center gap-1 pb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+          Deslizá para ver más
+          <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 text-[var(--color-luxury-gold)]" />
+        </p>
+      )}
+    </>
+  );
+
   const scrollAllPerfumes = (direction: 'left' | 'right') => {
     const container = allPerfumesScrollRef.current;
 
@@ -620,45 +678,7 @@ export function PerfumeDetail({
                         <span>Todos los perfumes</span>
                       </div>
 
-                      {filteredPerfumes.map((perfume) => {
-                        const isActive = perfume.sku === activePerfume.sku;
-
-                        return (
-                          <button
-                            key={perfume.sku}
-                            type="button"
-                            onClick={() => {
-                              handleFeaturedPerfumeSelect(perfume.sku);
-                              setIsMobileCatalogOpen(false);
-                              setMobileSelectedBrandKey(null);
-                            }}
-                            className={`flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0 ${
-                              isActive ? 'bg-purple-950/60' : 'bg-black/10'
-                            }`}
-                          >
-                            <span className="min-w-0">
-                              <span
-                                translate="no"
-                                className="notranslate block truncate text-base font-bold text-white"
-                              >
-                                {perfume.name}
-                              </span>
-
-                              <span
-                                translate="no"
-                                className="notranslate mt-0.5 block truncate text-sm text-gray-400"
-                              >
-                                {formatBrandName(perfume.brand)}
-                                {perfume.genero ? ` · ${perfume.genero}` : ''}
-                              </span>
-                            </span>
-
-                            <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
-                              ${getEffectivePrice(perfume).toLocaleString('es-AR')}
-                            </span>
-                          </button>
-                        );
-                      })}
+                      {renderMobilePerfumeStrip(filteredPerfumes)}
                     </div>
                   </>
                 ) : selectedMobileBrandGroup ? (
@@ -688,44 +708,7 @@ export function PerfumeDetail({
                         </span>
                       </div>
 
-                      {selectedMobileBrandGroup.perfumes.map((perfume) => {
-                        const isActive = perfume.sku === activePerfume.sku;
-
-                        return (
-                          <button
-                            key={perfume.sku}
-                            type="button"
-                            onClick={() => {
-                              handleFeaturedPerfumeSelect(perfume.sku);
-                              setIsMobileCatalogOpen(false);
-                              setMobileSelectedBrandKey(null);
-                            }}
-                            className={`flex min-h-11 w-full items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0 ${
-                              isActive ? 'bg-purple-950/60' : 'bg-black/10'
-                            }`}
-                          >
-                            <span className="min-w-0">
-                              <span
-                                translate="no"
-                                className="notranslate block truncate text-base font-bold text-white"
-                              >
-                                {perfume.name}
-                              </span>
-
-                              {perfume.genero && (
-                                <span translate="no" className="notranslate mt-0.5 block text-sm text-gray-400">
-                                  {perfume.genero}
-                                  {getBrandKey(perfume.brand) === getBrandKey("Victoria's Secret") && perfume.tipoProducto ? ` \u00b7 ${perfume.tipoProducto}` : ''}
-                                </span>
-                              )}
-                            </span>
-
-                            <span className="shrink-0 whitespace-nowrap text-sm font-bold text-[var(--color-luxury-gold)]">
-                              ${getEffectivePrice(perfume).toLocaleString('es-AR')}
-                            </span>
-                          </button>
-                        );
-                      })}
+                      {renderMobilePerfumeStrip(selectedMobileBrandGroup.perfumes)}
                     </div>
                   </>
                 ) : (
