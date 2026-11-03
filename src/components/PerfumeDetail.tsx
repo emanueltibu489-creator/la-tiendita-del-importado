@@ -346,6 +346,7 @@ export function PerfumeDetail({
     }
     setIsDescriptionTruncated(description.scrollHeight > description.clientHeight + 1);
   }, [activePerfume.sku, isDescriptionExpanded, perfumeShortDescription]);
+  // Elegir un perfume (destacados, carrusel o lista por marca) siempre lleva a su ficha
   const handleFeaturedPerfumeSelect = (sku: string) => {
     onSelectPerfume(sku);
 
@@ -576,7 +577,7 @@ export function PerfumeDetail({
                             key={perfume.sku}
                             type="button"
                             onClick={() => {
-                              onSelectPerfume(perfume.sku);
+                              handleFeaturedPerfumeSelect(perfume.sku);
                               setIsMobileCatalogOpen(false);
                               setMobileSelectedBrandKey(null);
                             }}
@@ -639,7 +640,7 @@ export function PerfumeDetail({
                             key={perfume.sku}
                             type="button"
                             onClick={() => {
-                              onSelectPerfume(perfume.sku);
+                              handleFeaturedPerfumeSelect(perfume.sku);
                               setIsMobileCatalogOpen(false);
                               setMobileSelectedBrandKey(null);
                             }}
@@ -762,7 +763,7 @@ export function PerfumeDetail({
                               key={perfume.sku}
                               id={`btn-${perfume.sku}`}
                               type="button"
-                              onClick={() => onSelectPerfume(perfume.sku)}
+                              onClick={() => handleFeaturedPerfumeSelect(perfume.sku)}
                               className={`flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 border-b border-purple-900/30 px-4 py-3 text-left last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-luxury-gold)] ${
                                 isActive
                                   ? 'bg-purple-950/60'
@@ -816,7 +817,7 @@ export function PerfumeDetail({
 
           <div
             id="perfume-sensorial-panel"
-            className="glass-card relative flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl border border-[var(--color-luxury-gold)]/20 p-6 shadow-2xl sm:p-8 lg:col-span-8"
+            className="glass-card scroll-mt-24 relative flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl border border-[var(--color-luxury-gold)]/20 p-6 shadow-2xl sm:p-8 lg:col-span-8"
           >
             <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, HelpCircle, Compass, Heart, GraduationCap, MapPin, AlertCircle } from 'lucide-react';
 
@@ -12,6 +12,9 @@ import { CartSidebar } from './components/CartSidebar';
 import { ToastContainer, ToastMessage } from './components/Toast';
 import { BrandEmblem } from './components/BrandLogo';
 import WhatsAppWidget from "./components/WhatsAppWidget";
+import { WHATSAPP_NUMBER } from './config/business';
+
+const CART_STORAGE_KEY = 'lti-reserva';
 export default function App() {
   const [activeTab, setActiveTab] = useState('perfumeria');
   const [perfumes, setPerfumes] = useState<Product[]>([]);
@@ -32,6 +35,62 @@ export default function App() {
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // La reserva se guarda en el navegador (solo SKU y cantidad) y al volver se arma con los
+  // precios y el stock actuales, así nunca queda un precio viejo.
+  const cartRestoredRef = useRef(false);
+
+  const restoreSavedCart = (available: Product[]) => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
+      if (!Array.isArray(saved)) return;
+      const restored: CartItem[] = [];
+      for (const entry of saved) {
+        const product = available.find((p) => p.sku === entry?.sku);
+        const quantity = Math.floor(Number(entry?.quantity));
+        if (!product || !(quantity > 0)) continue;
+        const capped = typeof product.stock === 'number' ? Math.min(quantity, product.stock) : quantity;
+        if (capped > 0) restored.push({ product, quantity: capped });
+      }
+      if (restored.length > 0) setCartItems(restored);
+    } catch {
+      // Sin acceso al almacenamiento (modo privado): la reserva arranca vacía
+    }
+  };
+
+  useEffect(() => {
+    if (!cartRestoredRef.current) return;
+    try {
+      localStorage.setItem(
+        CART_STORAGE_KEY,
+        JSON.stringify(cartItems.map((item) => ({ sku: item.product.sku, quantity: item.quantity }))),
+      );
+    } catch {
+      // Ignorar: guardar la reserva es una comodidad, no algo crítico
+    }
+  }, [cartItems]);
+
+  // Lista de novedades: no hay base de datos para esto, así que el alta llega por WhatsApp
+  const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const nombre = String(data.get('nombre') || '').trim();
+    const correo = String(data.get('correo') || '').trim();
+
+    const lines = [
+      '¡Hola! Quiero recibir novedades, reposiciones y promos de La Tiendita del Importado.',
+      `Nombre: ${nombre}`,
+    ];
+    if (correo) lines.push(`Correo: ${correo}`);
+
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+    event.currentTarget.reset();
+    addToast('¡Listo! Mandanos el mensaje y te sumamos a la lista', 'success');
   };
 
   // Cart operations
@@ -135,6 +194,7 @@ export default function App() {
           const perfumesWithImages = availablePerfumes.filter((product) => product.image);
 
           setPerfumes(perfumesWithImages);
+          restoreSavedCart(perfumesWithImages);
 
           if (perfumesWithImages.length > 0) {
             setActivePerfume(perfumesWithImages[0]);
@@ -147,6 +207,7 @@ export default function App() {
           setPerfumes([]);
           setActivePerfume(null);
         } finally {
+          cartRestoredRef.current = true;
           setIsLoadingPerfumes(false);
         }
       };
@@ -410,27 +471,26 @@ export default function App() {
               reposiciones o promos especiales.
             </p>
 
-            <form className="grid grid-cols-1 gap-4 max-w-xl">
+            <form onSubmit={handleNewsletterSubmit} className="grid grid-cols-1 gap-4 max-w-xl">
               <input
                 type="text"
+                name="nombre"
+                required
+                maxLength={60}
                 placeholder="Tu nombre"
                 className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none focus:border-[var(--color-luxury-gold)]"
               />
 
               <input
                 type="email"
-                placeholder="Tu correo electrónico"
-                className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none focus:border-[var(--color-luxury-gold)]"
-              />
-
-              <input
-                type="tel"
-                placeholder="Tu WhatsApp (opcional)"
+                name="correo"
+                maxLength={100}
+                placeholder="Tu correo electrónico (opcional)"
                 className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-gray-400 outline-none focus:border-[var(--color-luxury-gold)]"
               />
 
               <label className="flex items-start gap-3 text-xs text-gray-400 leading-relaxed">
-                <input type="checkbox" className="mt-1 accent-[var(--color-luxury-gold)]" />
+                <input type="checkbox" required className="mt-1 accent-[var(--color-luxury-gold)]" />
                 <span>
                   Acepto recibir novedades, reposiciones y comunicaciones comerciales por correo
                   electrónico o WhatsApp. Puedo darme de baja cuando quiera.
@@ -443,6 +503,9 @@ export default function App() {
               >
                 Quiero enterarme primero
               </button>
+              <p className="text-[11px] text-gray-500">
+                Se abre WhatsApp con tus datos para que nos lo mandes y te sumemos a la lista.
+              </p>
             </form>
           </div>
         </div>

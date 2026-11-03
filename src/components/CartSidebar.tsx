@@ -4,6 +4,11 @@ import { Product, CartItem } from '../types';
 import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
 import { WHATSAPP_NUMBER } from '../config/business';
 
+// Marca y tamaño: hay perfumes con el mismo nombre en distinto tamaño (ej. Aqua Kiss 236 y 250 ml)
+function getProductDetail(product: Product): string {
+  return [product.brand, product.ml ? `${product.ml} ml` : ''].filter(Boolean).join(' · ');
+}
+
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -53,6 +58,7 @@ export function CartSidebar({
       const hasOffer = hasValidFlashOffer(item.product);
       messageLines.push(
         `▪️ *${item.product.name}*`,
+        `   ${getProductDetail(item.product)}`,
         `   SKU: ${item.product.sku}`,
         `   Cantidad: ${item.quantity}`,
       );
@@ -203,6 +209,9 @@ export function CartSidebar({
                       >
                         {item.product.name}
                       </h4>
+                      <span className="notranslate block truncate text-[10px] text-gray-400" translate="no">
+                        {getProductDetail(item.product)}
+                      </span>
                       <span className="text-xs font-bold text-[var(--color-luxury-gold)] block mt-1">
                         ${itemSubtotal.toLocaleString('es-AR')}
                       </span>
