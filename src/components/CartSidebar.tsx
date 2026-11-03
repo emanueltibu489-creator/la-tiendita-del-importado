@@ -186,9 +186,6 @@ export function CartSidebar({
               cartItems.map((item) => {
                 const itemUnitPrice = getEffectivePrice(item.product);
                 const itemSubtotal = itemUnitPrice * item.quantity;
-                const reachedStockLimit =
-                  typeof item.product.stock === 'number' &&
-                  item.quantity >= item.product.stock;
                 return (
                   <motion.div
                     key={item.product.sku}
@@ -229,8 +226,7 @@ export function CartSidebar({
                       </span>
                       <button
                         onClick={() => onUpdateQuantity(item.product.sku, 1)}
-                        disabled={reachedStockLimit}
-                        title={reachedStockLimit ? 'Stock máximo disponible' : 'Agregar una unidad'}
+                        title="Agregar una unidad"
                         className="w-6 h-6 rounded bg-purple-900/30 hover:bg-purple-900/70 flex items-center justify-center text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <Plus className="w-3 h-3" />

@@ -69,10 +69,6 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
     return null;
   }
 
-  if (stock <= 0) {
-    return null;
-  }
-
   const images = [
     row.imagen_url_1,
     row.imagen_url_2,
@@ -133,11 +129,11 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
   };
 }
 
+/** Todos los perfumes, con o sin stock: sin stock se venden igual y se coordinan por WhatsApp. */
 export async function getAvailablePerfumes(): Promise<Product[]> {
   const { data, error } = await supabase
     .from('productos_perfumes')
     .select(PRODUCT_COLUMNS)
-    .gt('stock', 0)
     .order('nombre', { ascending: true });
 
   if (error) {

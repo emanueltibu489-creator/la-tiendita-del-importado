@@ -9,6 +9,7 @@ import { getPerfumeUrl } from '../utils/perfumeLink';
 import { playTin } from '../utils/sonido';
 import { FeaturedPerfumes } from './FeaturedPerfumes';
 import { ProductGallery } from './ProductGallery';
+import { EntregaInmediata } from './EntregaInmediata';
 import {
   PerfumeFilters,
   PerfumeFilterValues,
@@ -447,6 +448,7 @@ export function PerfumeDetail({
               <span className="mt-0.5 block text-[13px] font-bold text-[var(--color-luxury-gold)]">
                 ${getEffectivePrice(perfume).toLocaleString('es-AR')}
               </span>
+              <EntregaInmediata product={perfume} compact />
             </button>
           );
         })}
@@ -584,6 +586,7 @@ export function PerfumeDetail({
                   <span className="mt-1 block text-sm font-bold text-[var(--color-luxury-gold)]">
                     ${getEffectivePrice(perfume).toLocaleString('es-AR')}
                   </span>
+                  <EntregaInmediata product={perfume} compact />
                 </button>
               );
             })}
@@ -851,6 +854,7 @@ export function PerfumeDetail({
                                 >
                                   {perfume.name}
                                 </span>
+                                <EntregaInmediata product={perfume} compact />
 
                                 {perfume.genero && (
                                   <span translate="no" className="notranslate mt-0.5 block text-sm text-gray-400">
@@ -925,6 +929,7 @@ export function PerfumeDetail({
                         </h2>
 
                         <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <EntregaInmediata product={activePerfume} />
                           {activePerfume.badge && (
                             <span className="inline-block max-w-full break-words rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[var(--color-luxury-gold)]">
                               {activePerfume.badge}

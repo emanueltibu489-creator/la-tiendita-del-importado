@@ -58,9 +58,9 @@ export default function App() {
       for (const entry of saved) {
         const product = available.find((p) => p.sku === entry?.sku);
         const quantity = Math.floor(Number(entry?.quantity));
+        // Sin tope por stock: lo que falta se trae a pedido
         if (!product || !(quantity > 0)) continue;
-        const capped = typeof product.stock === 'number' ? Math.min(quantity, product.stock) : quantity;
-        if (capped > 0) restored.push({ product, quantity: capped });
+        restored.push({ product, quantity });
       }
       if (restored.length > 0) setCartItems(restored);
     } catch {
@@ -104,28 +104,12 @@ export default function App() {
 
   // Cart operations
   const handleAddToCart = (product: Product) => {
-    const existingItem = cartItems.find((item) => item.product.sku === product.sku);
-    const hasStockLimit = typeof product.stock === 'number';
-
-    if (hasStockLimit && product.stock <= 0) {
-      addToast(`"${product.name}" no tiene stock disponible`, 'error');
-      return;
-    }
-
-    if (existingItem && hasStockLimit && existingItem.quantity >= product.stock) {
-      addToast(`Stock máximo disponible: ${product.stock}`, 'info');
-      setIsCartOpen(true);
-      return;
-    }
-
+    // Sin límite por stock: lo que falta se trae a pedido y se coordina por WhatsApp
     setCartItems((prev) => {
       const idx = prev.findIndex((item) => item.product.sku === product.sku);
       if (idx > -1) {
         const copy = [...prev];
-        const nextQuantity = copy[idx].quantity + 1;
-        copy[idx].quantity = hasStockLimit
-          ? Math.min(nextQuantity, product.stock)
-          : nextQuantity;
+        copy[idx].quantity = copy[idx].quantity + 1;
         return copy;
       } else {
         return [...prev, { product, quantity: 1 }];
@@ -136,11 +120,6 @@ export default function App() {
   };
 
   const replaceCartWithProduct = (product: Product) => {
-    if (typeof product.stock === 'number' && product.stock <= 0) {
-      addToast(`"${product.name}" no tiene stock disponible`, 'error');
-      return;
-    }
-
     setCartItems([{ product, quantity: 1 }]);
     addToast(`"${product.name}" reservado para consultar`, 'success');
     setIsCartOpen(true);
@@ -157,28 +136,11 @@ export default function App() {
   };
 
   const handleUpdateQuantity = (sku: string, factor: number) => {
-    const currentItem = cartItems.find((item) => item.product.sku === sku);
-
-    if (
-      currentItem &&
-      factor > 0 &&
-      typeof currentItem.product.stock === 'number' &&
-      currentItem.quantity >= currentItem.product.stock
-    ) {
-      addToast(`Stock máximo disponible: ${currentItem.product.stock}`, 'info');
-      return;
-    }
-
     setCartItems((prev) => {
       const idx = prev.findIndex((item) => item.product.sku === sku);
       if (idx > -1) {
         const copy = [...prev];
-        const stock = copy[idx].product.stock;
-        const nextQuantity = copy[idx].quantity + factor;
-        copy[idx].quantity =
-          factor > 0 && typeof stock === 'number'
-            ? Math.min(nextQuantity, stock)
-            : nextQuantity;
+        copy[idx].quantity = copy[idx].quantity + factor;
         if (copy[idx].quantity <= 0) {
           copy.splice(idx, 1);
           addToast("Artículo eliminado de tu reserva", 'info');

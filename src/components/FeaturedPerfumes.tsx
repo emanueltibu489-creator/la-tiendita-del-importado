@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Product } from '../types';
 import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
+import { EntregaInmediata } from './EntregaInmediata';
 
 // Las tarjetas suben y aparecen de a una cuando llegan a la pantalla
 function AparecerAlBajar({ index, children }: { index: number; children: ReactNode; key?: string }) {
@@ -95,6 +96,7 @@ function FeaturedPerfumeCard({
         >
           {perfume.name}
         </span>
+        <EntregaInmediata product={perfume} compact />
 
         {perfume.descripcion_corta && (
           <span className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-gray-400">
