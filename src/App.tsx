@@ -13,8 +13,10 @@ import { ToastContainer, ToastMessage } from './components/Toast';
 import { BrandEmblem } from './components/BrandLogo';
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import { WHATSAPP_NUMBER } from './config/business';
+import { Mascota } from "./components/Mascota";
 
 const CART_STORAGE_KEY = 'lti-reserva';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('perfumeria');
   const [perfumes, setPerfumes] = useState<Product[]>([]);
@@ -406,15 +408,9 @@ export default function App() {
         {/* Hover Tooltip description box */}
         <div className="absolute bottom-20 right-0 w-80 rounded-2xl glass-card border border-[var(--color-luxury-gold)]/40 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 origin-bottom-right overflow-hidden" id="tooltip-bubble-flotante">
           {/* Sommelier Banner Image inside explanation card */}
-          <div className="h-28 w-full overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-[#140C22] to-transparent z-10" />
-            <img 
-              src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=320&h=140" 
-              alt="Mística de Perfumería" 
-              className="w-full h-full object-cover filter brightness-[0.8]"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute bottom-2 left-4 z-20">
+          <div className="h-28 w-full overflow-hidden relative bg-gradient-to-br from-[var(--color-luxury-purple-900)] to-[#140C22]">
+            <Mascota className="absolute right-3 top-2 h-24 w-auto" floating />
+            <div className="absolute bottom-2 left-4 right-24 z-20">
               <span className="text-[9px] font-bold text-[var(--color-luxury-gold)] uppercase tracking-[0.2em]">Asesoramiento Experto</span>
               <h4 className="text-xs font-bold uppercase tracking-widest text-white mt-0.5">
                 Alquimia Árabe de Lujo
@@ -424,7 +420,7 @@ export default function App() {
           
           <div className="p-4 pt-1 bg-[#140C22]/95">
             <p className="text-xs text-gray-300 leading-relaxed font-light">
-              ¿Abrumado por tantas opciones? Encuentra tu perfume ideal. Haz clic aquí, cuéntanos qué impacto deseas causar o qué emociones buscas transmitir hoy, y nuestro sistema calibrará las notas recomendadas para tu piel.
+              ¿Muchas opciones? Encontrá tu perfume ideal en 4 pasos: contanos qué buscás y te mostramos las fragancias que mejor van con vos.
             </p>
           </div>
           <div className="absolute bottom-[-6px] right-6 w-3 h-3 bg-[#140C22] border-r border-b border-purple-950 rotate-45" />
@@ -439,13 +435,8 @@ export default function App() {
           {/* Animated golden ring glow */}
           <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-luxury-gold)]/20 to-purple-500/20 animate-pulse" />
           
-          {/* Reference Image for Sommelier */}
-          <img 
-            src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=150&h=150" 
-            alt="Sommelier de Fragancias" 
-            className="w-full h-full object-cover rounded-full"
-            referrerPolicy="no-referrer"
-          />
+          {/* Mascota de la tienda como cara del Sommelier */}
+          <Mascota className="relative h-[82%] w-auto" floating />
 
           {/* Compass overlay in corner */}
           <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-[var(--color-luxury-gold)] text-purple-950 flex items-center justify-center border border-purple-950 shadow-md">

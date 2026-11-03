@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Brain, Check, X, ArrowRight, ArrowLeft, Send, Compass, AlertCircle } from 'lucide-react';
 import { Product } from '../types';
 import { getEffectivePrice } from '../utils/pricing';
+import { Mascota } from './Mascota';
 
 interface SommelierModalProps {
   isOpen: boolean;
@@ -308,13 +309,8 @@ export function SommelierModal({
         {/* Cabecera del Modal */}
         <div className="p-5 border-b border-purple-950 flex justify-between items-center bg-purple-950/20 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-[var(--color-luxury-gold)]/50 shrink-0 shadow-md">
-              <img 
-                src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=70&h=70" 
-                alt="Sommelier Avatar" 
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
+            <div className="relative flex w-9 h-9 items-center justify-center rounded-full overflow-hidden border border-[var(--color-luxury-gold)]/50 bg-purple-950 shrink-0 shadow-md">
+              <Mascota className="h-[80%] w-auto" />
             </div>
             <h3 className="font-luxury text-base sm:text-lg font-bold text-white tracking-wide">
               Sommelier de Fragancias
@@ -345,16 +341,10 @@ export function SommelierModal({
         {/* Cuerpo del Modal con Banner de Referencia */}
         <div className="overflow-y-auto flex-1 flex flex-col" id="sommelier-modal-body-container">
           {step !== 5 && (
-            <div className="h-28 w-full relative overflow-hidden shrink-0 border-b border-purple-950/40">
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-luxury-purple-950)] via-[var(--color-luxury-purple-950)]/40 to-transparent z-10" />
-              <img 
-                src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=600&h=200" 
-                alt="Alta Perfumería" 
-                className="w-full h-full object-cover filter brightness-[0.75] contrast-[1.1]"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute bottom-2.5 left-6 z-20">
-                <span className="text-[9px] font-bold text-[var(--color-luxury-gold)] uppercase tracking-[0.2em] bg-purple-950/80 px-2 py-0.5 rounded border border-purple-900/40">
+            <div className="h-28 w-full relative overflow-hidden shrink-0 border-b border-purple-950/40 bg-gradient-to-br from-[var(--color-luxury-purple-900)] to-[var(--color-luxury-purple-950)]">
+              <Mascota className="absolute right-5 top-2 h-24 w-auto" floating />
+              <div className="absolute bottom-2.5 left-6 right-32 z-20">
+                <span className="text-[9px] font-bold text-[var(--color-luxury-gold)] uppercase tracking-[0.2em] whitespace-nowrap bg-purple-950/80 px-2 py-0.5 rounded border border-purple-900/40">
                   Asesoramiento Sensorial
                 </span>
                 <p className="text-[11px] text-gray-300 mt-1 font-light max-w-xs">

@@ -70,3 +70,9 @@
 .animate-pulse-slow {
   animation: pulse-slow 8s infinite ease-in-out;
 }
+
+/* La mascota del Sommelier flota suave */
+@keyframes mascota-flotar {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6%) rotate(2deg); }
+}
