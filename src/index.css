@@ -98,10 +98,41 @@
   animation: brillo-dorado 1.6s ease-out 0.2s 1 both;
 }
 
+/* Inicio: el carrito entra rodando al círculo, frena con un rebote, destella y queda latiendo */
+@keyframes carrito-entra {
+  0% { transform: translateX(-150%) rotate(-14deg); opacity: 0; }
+  55% { transform: translateX(10%) rotate(5deg); opacity: 1; }
+  75% { transform: translateX(-4%) rotate(-2deg); }
+  100% { transform: translateX(0) rotate(0); opacity: 1; }
+}
+
+@keyframes destello-pasa {
+  from { transform: translateX(-130%) skewX(-18deg); }
+  to { transform: translateX(130%) skewX(-18deg); }
+}
+
+.carrito-entra {
+  animation: carrito-entra 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+}
+
+.destello-pasa {
+  animation: destello-pasa 0.9s ease-in-out 1.15s both;
+}
+
+.latido-dorado-tarde {
+  animation: latido-dorado 2.4s ease-out 1.8s infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .latido-dorado,
-  .brillo-dorado {
+  .brillo-dorado,
+  .carrito-entra,
+  .latido-dorado-tarde {
     animation: none;
+  }
+
+  .destello-pasa {
+    display: none;
   }
 }
 

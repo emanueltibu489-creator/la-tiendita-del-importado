@@ -264,9 +264,13 @@ export default function App() {
   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-[120%] group-hover:translate-x-[120%] transition-transform duration-1000 ease-out" />
 
   {/* Segundo Emblema Circular */}
-  <div className="w-28 h-28 md:w-36 md:h-36 shrink-0 bg-gradient-to-tr from-[var(--color-luxury-purple-950)] to-purple-900/50 p-1.5 rounded-full shadow-2xl flex items-center justify-center border-2 border-[var(--color-luxury-gold)]/40 relative overflow-hidden group/emblem">
+  {/* Al entrar a la web el carrito llega rodando, destella y queda latiendo en dorado */}
+  <div className="latido-dorado-tarde w-28 h-28 md:w-36 md:h-36 shrink-0 bg-gradient-to-tr from-[var(--color-luxury-purple-950)] to-purple-900/50 p-1.5 rounded-full shadow-2xl flex items-center justify-center border-2 border-[var(--color-luxury-gold)]/40 relative overflow-hidden group/emblem">
     <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent translate-y-full group-hover/emblem:translate-y-0 transition-transform duration-500 pointer-events-none" />
-    <BrandEmblem className="w-[85%] h-[85%] object-contain transition-transform duration-500 group-hover/emblem:scale-[1.06]" />
+    <span className="carrito-entra flex h-[85%] w-[85%] items-center justify-center">
+      <BrandEmblem className="w-full h-full object-contain transition-transform duration-500 group-hover/emblem:scale-[1.06]" />
+    </span>
+    <span aria-hidden="true" className="destello-pasa pointer-events-none absolute inset-y-0 left-0 w-full bg-gradient-to-r from-transparent via-[#fff2cd]/45 to-transparent" />
   </div>
 
   <div className="text-center md:text-left" id="welcome-text-container">
