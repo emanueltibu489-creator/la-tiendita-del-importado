@@ -395,18 +395,19 @@ export default function App() {
       </main>
 
       {/* INTERFAZ FLOTANTE: SOMMELIER DE FRAGANCIAS - BOTTOM RIGHT */}
-      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 group">
+      {/* Celu: solo la mascota, abajo a la derecha y con WhatsApp justo arriba en la misma columna */}
+      <div className="fixed bottom-4 right-4 z-40 flex items-center gap-3 group sm:bottom-6 sm:right-6">
         {/* Fast intuitive label always visible */}
         <div 
           onClick={() => setIsSommelierOpen(true)}
-          className="bg-black/85 hover:bg-black border border-[var(--color-luxury-gold)]/45 text-[var(--color-luxury-gold)] text-[10px] font-bold tracking-widest uppercase py-2.5 px-4 rounded-full shadow-2xl backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:scale-105 active:scale-95 flex items-center gap-2 border-l-2 border-l-[var(--color-luxury-gold)]"
+          className="bg-black/85 hover:bg-black border border-[var(--color-luxury-gold)]/45 text-[var(--color-luxury-gold)] text-[10px] font-bold tracking-widest uppercase py-2.5 px-4 rounded-full shadow-2xl backdrop-blur-md cursor-pointer transition-all duration-300 transform group-hover:scale-105 active:scale-95 hidden sm:flex items-center gap-2 border-l-2 border-l-[var(--color-luxury-gold)]"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           <span>Sommelier Virtual</span>
         </div>
 
         {/* Hover Tooltip description box */}
-        <div className="absolute bottom-20 right-0 w-80 rounded-2xl glass-card border border-[var(--color-luxury-gold)]/40 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 origin-bottom-right overflow-hidden" id="tooltip-bubble-flotante">
+        <div className="absolute bottom-20 right-0 hidden w-80 sm:block rounded-2xl glass-card border border-[var(--color-luxury-gold)]/40 shadow-2xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 origin-bottom-right overflow-hidden" id="tooltip-bubble-flotante">
           {/* Sommelier Banner Image inside explanation card */}
           <div className="h-28 w-full overflow-hidden relative bg-gradient-to-br from-[var(--color-luxury-purple-900)] to-[#140C22]">
             <Mascota className="absolute right-3 top-2 h-24 w-auto" floating />
@@ -429,7 +430,7 @@ export default function App() {
         {/* Floating Call trigger with real reference image */}
         <button
           onClick={() => setIsSommelierOpen(true)}
-          className="relative w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-[0_8px_30px_rgba(110,68,178,0.6)] border-2 border-[var(--color-luxury-gold)] hover:scale-110 hover:rotate-6 transition-all duration-300 overflow-hidden bg-purple-950 shrink-0"
+          className="relative w-[50px] h-[50px] sm:w-16 sm:h-16 rounded-full flex items-center justify-center cursor-pointer shadow-[0_8px_30px_rgba(110,68,178,0.6)] border-2 border-[var(--color-luxury-gold)] hover:scale-110 hover:rotate-6 transition-all duration-300 overflow-hidden bg-purple-950 shrink-0"
           aria-label="Abrir Sommelier Virtual"
         >
           {/* Animated golden ring glow */}
@@ -439,7 +440,7 @@ export default function App() {
           <Mascota className="relative h-[82%] w-auto" floating />
 
           {/* Compass overlay in corner */}
-          <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-[var(--color-luxury-gold)] text-purple-950 flex items-center justify-center border border-purple-950 shadow-md">
+          <div className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[var(--color-luxury-gold)] text-purple-950 flex items-center justify-center border border-purple-950 shadow-md">
             <Compass className="h-3 w-3 text-purple-950 font-bold" />
           </div>
         </button>
@@ -502,7 +503,7 @@ export default function App() {
         </div>
 
       {/* FOOTER - PIE DE PÁGINA */}
-      <footer className="w-full bg-[var(--color-luxury-purple-950)] border-t border-purple-950/80 py-8 text-center text-xs text-gray-500 font-light mt-20" id="app-footer">
+      <footer className="w-full bg-[var(--color-luxury-purple-950)] border-t border-purple-950/80 pt-8 pb-36 sm:pb-8 text-center text-xs text-gray-500 font-light mt-20" id="app-footer">
         <div className="max-w-6xl mx-auto px-4 space-y-2">
           <p>© {new Date().getFullYear()} La Tiendita del Importado. Todos los derechos reservados.</p>
           <p className="text-[10px] text-purple-400">Curaduría Sensorial de Lujo & Envíos Certificados</p>
@@ -538,7 +539,7 @@ export default function App() {
 
       {/* SYSTEM NOTIFICATIONS CONTAINER */}
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
-      <WhatsAppWidget />
+      <WhatsAppWidget hidden={isSommelierOpen || isCartOpen} />
     </div>
   );
 }

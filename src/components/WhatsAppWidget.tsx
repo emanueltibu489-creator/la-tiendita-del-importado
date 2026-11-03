@@ -36,7 +36,8 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export default function WhatsAppWidget() {
+// hidden: con el Sommelier o el carrito abiertos el botón se esconde para no taparlos
+export default function WhatsAppWidget({ hidden = false }: { hidden?: boolean }) {
   const [open, setOpen] = useState(false);
   const [showLabel, setShowLabel] = useState(true);
   const widgetRef = useRef<HTMLDivElement>(null);
@@ -63,10 +64,16 @@ export default function WhatsAppWidget() {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (hidden) setOpen(false);
+  }, [hidden]);
+
+  if (hidden) return null;
+
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-[112px] right-4 z-[1000] sm:bottom-[120px] sm:right-6 flex flex-col items-end gap-3"
+      className="fixed bottom-[78px] right-4 z-[1000] sm:bottom-[120px] sm:right-6 flex flex-col items-end gap-3"
     >
       {open && (
         <div
