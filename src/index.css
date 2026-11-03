@@ -71,6 +71,40 @@
   animation: pulse-slow 8s infinite ease-in-out;
 }
 
+/* El perfume elegido late en dorado, como la onda del botón de WhatsApp */
+@keyframes latido-dorado {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+.latido-dorado {
+  animation: latido-dorado 2.4s ease-out infinite;
+}
+
+/* Un brillo dorado que cruza el nombre del perfume cuando aparece */
+@keyframes brillo-dorado {
+  from { background-position: 120% 0; }
+  to { background-position: -20% 0; }
+}
+
+.brillo-dorado {
+  background-image: linear-gradient(110deg, #ffffff 42%, #fff2cd 48%, #d4af37 52%, #ffffff 58%);
+  background-size: 250% 100%;
+  background-position: -20% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brillo-dorado 1.6s ease-out 0.2s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .latido-dorado,
+  .brillo-dorado {
+    animation: none;
+  }
+}
+
 /* La mascota del Sommelier flota suave */
 @keyframes mascota-flotar {
   0%, 100% { transform: translateY(0) rotate(-2deg); }

@@ -41,7 +41,7 @@ function FeaturedPerfumeCard({
       onClick={() => onSelectPerfume(perfume.sku)}
       className={`flex min-w-0 gap-3 rounded-2xl border p-3 text-left transition-colors active:scale-[0.99] ${
         isActive
-          ? 'border-[var(--color-luxury-gold)] bg-[var(--color-luxury-gold)]/10'
+          ? 'latido-dorado border-[var(--color-luxury-gold)] bg-[var(--color-luxury-gold)]/10'
           : 'border-purple-900/40 bg-black/25'
       }`}
     >

@@ -6,6 +6,7 @@ import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
 import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
 import { getPerfumeUrl } from '../utils/perfumeLink';
+import { playTin } from '../utils/sonido';
 import { FeaturedPerfumes } from './FeaturedPerfumes';
 import { ProductGallery } from './ProductGallery';
 import {
@@ -391,6 +392,7 @@ export function PerfumeDetail({
 
   // Elegir un perfume (destacados, carrusel o lista por marca) siempre lleva a su ficha
   const handleFeaturedPerfumeSelect = (sku: string) => {
+    if (sku !== activePerfume.sku) playTin();
     onSelectPerfume(sku);
 
     window.setTimeout(() => {
@@ -417,7 +419,7 @@ export function PerfumeDetail({
               aria-label={`Ver detalle de ${perfume.name}`}
               className={`w-[7.5rem] shrink-0 snap-start rounded-xl border p-2 text-left transition active:scale-[0.97] ${
                 isActive
-                  ? 'border-[var(--color-luxury-gold)] bg-purple-950/70 shadow-[0_0_14px_rgba(212,175,55,0.25)]'
+                  ? 'latido-dorado border-[var(--color-luxury-gold)] bg-purple-950/70'
                   : 'border-purple-900/40 bg-black/25'
               }`}
             >
@@ -532,7 +534,7 @@ export function PerfumeDetail({
 
             <div
               ref={allPerfumesScrollRef}
-              className="flex gap-3 overflow-x-auto px-12 pb-3 [scrollbar-width:thin]"
+              className="flex gap-3 overflow-x-auto px-12 pb-3 pt-3 [scrollbar-width:thin]"
             >
             {filteredPerfumes.map((perfume) => {
               const isActive = perfume.sku === activePerfume.sku;
@@ -545,7 +547,7 @@ export function PerfumeDetail({
                   onClick={() => handleFeaturedPerfumeSelect(perfume.sku)}
                   className={`min-h-[11rem] w-36 shrink-0 rounded-2xl border p-2.5 text-left transition active:scale-[0.98] sm:w-40 ${
                     isActive
-                      ? 'border-[var(--color-luxury-gold)] bg-purple-950/60'
+                      ? 'latido-dorado border-[var(--color-luxury-gold)] bg-purple-950/60'
                       : 'border-purple-900/40 bg-black/25'
                   }`}
                   aria-label={`Ver detalle de ${perfume.name}`}
@@ -917,7 +919,7 @@ export function PerfumeDetail({
 
                         <h2
                           translate="no"
-                          className="notranslate mt-1 break-words font-luxury text-xl font-bold leading-snug tracking-wide text-white sm:text-2xl lg:text-3xl"
+                          className="brillo-dorado notranslate mt-1 break-words font-luxury text-xl font-bold leading-snug tracking-wide text-white sm:text-2xl lg:text-3xl"
                         >
                           {activePerfume.name}
                         </h2>
