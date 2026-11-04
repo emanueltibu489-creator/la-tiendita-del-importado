@@ -289,7 +289,12 @@ export default function App() {
     </span>
 
     <h1 className="font-luxury text-2xl sm:text-3xl md:text-4xl font-semibold text-white tracking-wide mb-4 leading-tight">
-      Perfumes, regalos y productos importados que de verdad valen la pena
+      {/* Las palabras entran de a una, mientras el carrito llega al círculo */}
+      {'Perfumes, regalos y productos importados que de verdad valen la pena'.split(' ').map((palabra, index) => (
+        <span key={index} className="palabra-entra" style={{ animationDelay: `${0.3 + index * 0.09}s` }}>
+          {palabra}{' '}
+        </span>
+      ))}
     </h1>
 
     <p className="text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-light mb-3">
