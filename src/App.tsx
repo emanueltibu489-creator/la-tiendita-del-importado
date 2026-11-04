@@ -14,10 +14,15 @@ import { BrandEmblem } from './components/BrandLogo';
 import WhatsAppWidget from "./components/WhatsAppWidget";
 import { WHATSAPP_NUMBER } from './config/business';
 import { Mascota } from "./components/Mascota";
-import { findPerfumeFromUrl, getPerfumeSlug, PERFUME_PARAM, showPerfumeInUrl } from './utils/perfumeLink';
+import { clearPerfumeFromUrl, findPerfumeFromUrl, getPerfumeSlug, isPageReload, PERFUME_PARAM, showPerfumeInUrl } from './utils/perfumeLink';
 import { Analytics } from '@vercel/analytics/react';
 
 const CART_STORAGE_KEY = 'lti-reserva';
+
+// Que el navegador no devuelva a la mitad de la página al refrescar
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('perfumeria');
@@ -201,7 +206,12 @@ export default function App() {
           setPerfumes(perfumesWithImages);
           restoreSavedCart(perfumesWithImages);
 
-          // Si entraron con el link de un perfume, se abre su ficha directo
+          // Si entraron con el link de un perfume, se abre su ficha directo.
+          // Si solo refrescaron, la web vuelve a empezar desde arriba.
+          if (isPageReload()) {
+            clearPerfumeFromUrl();
+            window.scrollTo(0, 0);
+          }
           const linkedPerfume = findPerfumeFromUrl(perfumesWithImages);
           if (linkedPerfume) {
             setActivePerfume(linkedPerfume);

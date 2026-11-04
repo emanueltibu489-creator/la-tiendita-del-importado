@@ -32,6 +32,26 @@ export function getPerfumeUrl(perfume: Product): string {
   return url.toString();
 }
 
+// Al refrescar la página la dirección conserva el último perfume mirado; eso no cuenta como link compartido
+export function isPageReload(): boolean {
+  try {
+    const [navigation] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+    return navigation?.type === 'reload';
+  } catch {
+    return false;
+  }
+}
+
+export function clearPerfumeFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete(PERFUME_PARAM);
+    window.history.replaceState(window.history.state, '', url.toString());
+  } catch {
+    // Si el navegador no deja, la web sigue andando igual
+  }
+}
+
 // Cambia la dirección sin recargar ni sumar pasos al botón "atrás"
 export function showPerfumeInUrl(perfume: Product) {
   try {
