@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, HelpCircle, Compass, Heart, GraduationCap, MapPin, AlertCircle } from 'lucide-react';
+import { Sparkles, HelpCircle, Compass, Heart, GraduationCap, MapPin, AlertCircle, ShieldCheck, PackageCheck, MessageCircle } from 'lucide-react';
 
 import { Product, CartItem } from './types';
 import { getAvailablePerfumes } from './services/products';
@@ -311,20 +311,30 @@ export default function App() {
   </div>
 </section>
 
-<section className="mb-8 rounded-2xl border border-[var(--color-luxury-gold)]/25 bg-black/25 px-4 py-3 shadow-xl backdrop-blur-sm sm:px-6">
-  <div className="flex flex-col items-center justify-center gap-2 text-center sm:flex-row sm:gap-4">
-    <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--color-luxury-gold)]">
-      Perfumes originales
-    </span>
-    <span className="hidden h-1 w-1 rounded-full bg-purple-300/70 sm:block" />
-    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-100">
-      Disponibles y a pedido
-    </span>
-    <span className="hidden h-1 w-1 rounded-full bg-purple-300/70 sm:block" />
-    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-purple-100">
-      Reserva por WhatsApp
-    </span>
-  </div>
+{/* Tres garantías con ícono dorado: qué vendemos, cómo se consigue y cómo se reserva */}
+<section className="mb-8 grid grid-cols-3 gap-2 sm:gap-4">
+  {[
+    { Icon: ShieldCheck, titulo: 'Originales', detalle: "Árabes y Victoria's Secret" },
+    { Icon: PackageCheck, titulo: 'En stock y a pedido', detalle: 'Si no está, lo encargamos' },
+    { Icon: MessageCircle, titulo: 'Reservá por WhatsApp', detalle: 'En un solo mensaje' },
+  ].map(({ Icon, titulo, detalle }) => (
+    <div
+      key={titulo}
+      className="flex flex-col items-center gap-2 rounded-2xl border border-[var(--color-luxury-gold)]/25 bg-black/25 px-2 py-3 text-center shadow-xl backdrop-blur-sm sm:flex-row sm:gap-3 sm:px-4 sm:text-left"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--color-luxury-gold)]/40 bg-[var(--color-luxury-gold)]/10 text-[var(--color-luxury-gold)]">
+        <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} />
+      </span>
+      <span className="flex flex-col gap-0.5">
+        <span className="font-luxury text-[15px] font-semibold leading-tight text-white sm:text-lg">
+          {titulo}
+        </span>
+        <span className="text-[10px] leading-snug text-purple-200/80 sm:text-xs">
+          {detalle}
+        </span>
+      </span>
+    </div>
+  ))}
 </section>
 
         {/* SECTION 1: PERFUMERÍA  Y CUADRANTE SENSORIAL */}
