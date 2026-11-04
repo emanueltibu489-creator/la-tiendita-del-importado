@@ -123,6 +123,16 @@
   animation: latido-dorado 2.4s ease-out 1.8s infinite;
 }
 
+/* Oferta relámpago: el destello cruza rápido y descansa unos segundos */
+@keyframes destello-oferta {
+  0% { transform: translateX(-130%) skewX(-18deg); }
+  25%, 100% { transform: translateX(130%) skewX(-18deg); }
+}
+
+.destello-oferta {
+  animation: destello-oferta 3.6s ease-in-out 0.8s infinite both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .latido-dorado,
   .brillo-dorado,
@@ -131,7 +141,8 @@
     animation: none;
   }
 
-  .destello-pasa {
+  .destello-pasa,
+  .destello-oferta {
     display: none;
   }
 }

@@ -1,5 +1,23 @@
+import type { ReactNode } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Product } from '../types';
 import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
+
+// Las tarjetas suben y aparecen de a una cuando llegan a la pantalla
+function AparecerAlBajar({ index, children }: { index: number; children: ReactNode; key?: string }) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.5, ease: 'easeOut', delay: (index % 4) * 0.1 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 interface FeaturedPerfumesProps {
   perfumes: Product[];
@@ -39,12 +57,20 @@ function FeaturedPerfumeCard({
     <button
       type="button"
       onClick={() => onSelectPerfume(perfume.sku)}
-      className={`flex min-w-0 gap-3 rounded-2xl border p-3 text-left transition-colors active:scale-[0.99] ${
+      className={`relative flex min-w-0 gap-3 overflow-hidden rounded-2xl border p-3 text-left transition-colors active:scale-[0.99] ${
         isActive
           ? 'latido-dorado border-[var(--color-luxury-gold)] bg-[var(--color-luxury-gold)]/10'
           : 'border-purple-900/40 bg-black/25'
       }`}
     >
+      {/* Las ofertas relámpago tienen un destello que cruza la tarjeta cada tanto */}
+      {hasOffer && (
+        <span
+          aria-hidden="true"
+          className="destello-oferta pointer-events-none absolute inset-y-0 left-0 w-full bg-gradient-to-r from-transparent via-[#fff2cd]/25 to-transparent"
+        />
+      )}
+
       {perfume.image && (
         <img
           src={perfume.image}
@@ -129,14 +155,14 @@ export function FeaturedPerfumes({
                 Destacados de la semana
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {featured.map((perfume) => (
-                  <div key={perfume.sku}>
+                {featured.map((perfume, index) => (
+                  <AparecerAlBajar key={perfume.sku} index={index}>
                     <FeaturedPerfumeCard
                       perfume={perfume}
                       activeSku={activeSku}
                       onSelectPerfume={onSelectPerfume}
                     />
-                  </div>
+                  </AparecerAlBajar>
                 ))}
               </div>
             </div>
@@ -148,14 +174,14 @@ export function FeaturedPerfumes({
                 Ofertas relámpago
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {flashOffers.map((perfume) => (
-                  <div key={perfume.sku}>
+                {flashOffers.map((perfume, index) => (
+                  <AparecerAlBajar key={perfume.sku} index={index}>
                     <FeaturedPerfumeCard
                       perfume={perfume}
                       activeSku={activeSku}
                       onSelectPerfume={onSelectPerfume}
                     />
-                  </div>
+                  </AparecerAlBajar>
                 ))}
               </div>
             </div>
