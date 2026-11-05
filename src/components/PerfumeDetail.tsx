@@ -6,6 +6,7 @@ import { WHATSAPP_NUMBER } from '../config/business';
 import { Product } from '../types';
 import { getEffectivePrice, hasValidFlashOffer } from '../utils/pricing';
 import { getPerfumeUrl } from '../utils/perfumeLink';
+import { getPresentaciones, isSamePerfume, onePerPerfume } from '../utils/presentaciones';
 import { playTin } from '../utils/sonido';
 import { FeaturedPerfumes } from './FeaturedPerfumes';
 import { ProductGallery } from './ProductGallery';
@@ -168,7 +169,8 @@ export function PerfumeDetail({
     const maxPrice =
       filters.maxPrice === '' ? null : Number(filters.maxPrice);
 
-    return perfumes.filter((perfume) => {
+    // Los tamaños de un mismo perfume salen en una sola tarjeta
+    return onePerPerfume(perfumes.filter((perfume) => {
       const matchesName =
         query === '' || normalizeText(perfume.name).includes(query);
 
@@ -202,7 +204,7 @@ export function PerfumeDetail({
         matchesMinPrice &&
         matchesMaxPrice
       );
-    });
+    }));
   }, [filters, perfumes]);
     const perfumeGroups = useMemo(() => {
     const groups = new Map<
@@ -241,13 +243,13 @@ export function PerfumeDetail({
 
   useEffect(() => {
     const activeIsVisible = filteredPerfumes.some(
-      (perfume) => perfume.sku === activePerfume.sku,
+      (perfume) => isSamePerfume(perfume, activePerfume),
     );
 
     if (filteredPerfumes.length > 0 && !activeIsVisible) {
       onSelectPerfume(filteredPerfumes[0].sku);
     }
-  }, [activePerfume.sku, filteredPerfumes, onSelectPerfume]);
+  }, [activePerfume, filteredPerfumes, onSelectPerfume]);
   useEffect(() => {
     if (perfumeGroups.length === 0) {
       setExpandedBrand(null);
@@ -264,6 +266,7 @@ export function PerfumeDetail({
   const activeHasOffer = hasValidFlashOffer(activePerfume);
   const activeEffectivePrice = getEffectivePrice(activePerfume);
   const activePerfumeMl = formatMl(activePerfume.ml);
+  const activePresentaciones = getPresentaciones(perfumes, activePerfume);
   const activePerfumeGender = formatGender(activePerfume.genero);
   const activeProductType = activePerfume.tipoProducto?.trim();
   const deposit = activeEffectivePrice * 0.3;
@@ -409,7 +412,7 @@ export function PerfumeDetail({
     <>
       <div className="-mx-1 flex snap-x snap-mandatory scroll-px-3 gap-2.5 overflow-x-auto px-3 pb-3 pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {stripPerfumes.map((perfume) => {
-          const isActive = perfume.sku === activePerfume.sku;
+          const isActive = isSamePerfume(perfume, activePerfume);
           const perfumeImage = perfume.images?.[0] || perfume.image;
 
           return (
@@ -497,7 +500,7 @@ export function PerfumeDetail({
           profiles={profiles}
           occasions={occasions}
           resultCount={filteredPerfumes.length}
-          totalCount={perfumes.length}
+          totalCount={onePerPerfume(perfumes).length}
           onChange={setFilters}
           onClear={() => setFilters(EMPTY_FILTERS)}
         />
@@ -539,7 +542,7 @@ export function PerfumeDetail({
               className="flex gap-3 overflow-x-auto px-12 pb-3 pt-3 [scrollbar-width:thin]"
             >
             {filteredPerfumes.map((perfume) => {
-              const isActive = perfume.sku === activePerfume.sku;
+              const isActive = isSamePerfume(perfume, activePerfume);
               const perfumeImage = perfume.images?.[0] || perfume.image;
 
               return (
@@ -833,7 +836,7 @@ export function PerfumeDetail({
                         className="border-t border-purple-900/40"
                       >
                         {group.perfumes.map((perfume) => {
-                          const isActive = perfume.sku === activePerfume.sku;
+                          const isActive = isSamePerfume(perfume, activePerfume);
 
                           return (
                             <button
@@ -901,7 +904,7 @@ export function PerfumeDetail({
 
             <AnimatePresence mode="wait">
               <motion.div
-                key={activePerfume.sku}
+                key={activePerfume.grupo ?? activePerfume.sku}
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
@@ -936,7 +939,7 @@ export function PerfumeDetail({
                             </span>
                           )}
 
-                          {activePerfumeMl && (
+                          {activePerfumeMl && activePresentaciones.length < 2 && (
                             <span className="inline-block rounded-full border border-purple-400/25 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-purple-200">
                               {activePerfumeMl}
                             </span>
@@ -956,6 +959,44 @@ export function PerfumeDetail({
                             </span>
                           )}
                         </div>
+
+                        {/* Mismo perfume en varios tamaños: cada botón es su propio SKU, con su precio y su stock */}
+                        {activePresentaciones.length > 1 && (
+                          <div className="mt-3">
+                            <span className="block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                              Elegí el tamaño
+                            </span>
+                            <div className="mt-1.5 flex flex-wrap gap-2" role="radiogroup" aria-label="Tamaño">
+                              {activePresentaciones.map((presentacion) => {
+                                const isChosen = presentacion.sku === activePerfume.sku;
+                                return (
+                                  <button
+                                    key={presentacion.sku}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={isChosen}
+                                    onClick={() => {
+                                      if (!isChosen) {
+                                        playTin();
+                                        onSelectPerfume(presentacion.sku);
+                                      }
+                                    }}
+                                    className={`flex min-h-11 flex-col items-start rounded-xl border px-3 py-1.5 text-left transition active:scale-95 ${
+                                      isChosen
+                                        ? 'border-[var(--color-luxury-gold)] bg-[var(--color-luxury-gold)]/15 text-white'
+                                        : 'border-purple-400/30 bg-black/30 text-purple-100 hover:border-[var(--color-luxury-gold)]/60'
+                                    }`}
+                                  >
+                                    <span className="text-sm font-bold">{formatMl(presentacion.ml)}</span>
+                                    <span className="text-[11px] font-semibold text-[var(--color-luxury-gold)] tabular-nums">
+                                      ${getEffectivePrice(presentacion).toLocaleString('es-AR')}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
 
                         <button
                           type="button"

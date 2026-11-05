@@ -24,6 +24,7 @@ interface SupabaseProductRow {
   momento_ideal: string | null;
   estacion_ideal: string | null;
   proyeccion: string | null;
+  grupo: string | null;
 }
 
 const PRODUCT_COLUMNS = `
@@ -48,7 +49,8 @@ const PRODUCT_COLUMNS = `
   perfil_olfativo,
   momento_ideal,
   estacion_ideal,
-  proyeccion
+  proyeccion,
+  grupo
 `;
 
 function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
@@ -75,11 +77,16 @@ function mapSupabaseProduct(row: SupabaseProductRow): Product | null {
     row.imagen_url_3,
   ].filter((image): image is string => Boolean(image));
 
+  // En un grupo de tamaños se muestra el nombre común: "9 PM (Black)" queda "9 PM"
+  const grupo = row.grupo?.trim().toLowerCase() || undefined;
+  const nombre = row.nombre?.trim() || 'Producto sin nombre';
+
   return {
     id: sku,
     sku,
     brand: row.marca || 'Sin marca',
-    name: row.nombre || 'Producto sin nombre',
+    name: grupo ? nombre.replace(/\s*\([^)]*\)\s*$/, '') || nombre : nombre,
+    grupo,
     ml: row.ml?.toString().trim() || undefined,
     price,
     offerPrice: offerPrice > 0 ? offerPrice : null,

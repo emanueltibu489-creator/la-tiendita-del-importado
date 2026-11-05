@@ -43,6 +43,8 @@ export interface Product {
   image?: string;
   images?: string[];
   badge?: string;
+  /** Mismo valor en los SKU que son el mismo perfume en otro tamaño */
+  grupo?: string;
 }
 
 export interface CartItem {
